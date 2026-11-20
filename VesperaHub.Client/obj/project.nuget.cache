@@ -1,36 +1,23 @@
 {
   "version": 2,
-  "dgSpecHash": "dydPn6i34to=",
+  "dgSpecHash": "JvPKe0AgC4s=",
   "success": true,
   "projectFilePath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Client\\VesperaHub.Client.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\10.0.5\\microsoft.aspnetcore.connections.abstractions.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.http.connections.client\\10.0.5\\microsoft.aspnetcore.http.connections.client.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.http.connections.common\\10.0.5\\microsoft.aspnetcore.http.connections.common.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.client\\10.0.5\\microsoft.aspnetcore.signalr.client.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.client.core\\10.0.5\\microsoft.aspnetcore.signalr.client.core.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.common\\10.0.5\\microsoft.aspnetcore.signalr.common.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.protocols.json\\10.0.5\\microsoft.aspnetcore.signalr.protocols.json.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.5\\microsoft.extensions.dependencyinjection.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.5\\microsoft.extensions.dependencyinjection.abstractions.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.features\\10.0.5\\microsoft.extensions.features.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.logging\\10.0.5\\microsoft.extensions.logging.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.5\\microsoft.extensions.logging.abstractions.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.options\\10.0.5\\microsoft.extensions.options.10.0.5.nupkg.sha512",
-    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.5\\microsoft.extensions.primitives.10.0.5.nupkg.sha512"
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\10.0.15\\microsoft.aspnetcore.connections.abstractions.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.http.connections.client\\10.0.15\\microsoft.aspnetcore.http.connections.client.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.http.connections.common\\10.0.15\\microsoft.aspnetcore.http.connections.common.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.client\\10.0.15\\microsoft.aspnetcore.signalr.client.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.client.core\\10.0.15\\microsoft.aspnetcore.signalr.client.core.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.common\\10.0.15\\microsoft.aspnetcore.signalr.common.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.signalr.protocols.json\\10.0.15\\microsoft.aspnetcore.signalr.protocols.json.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.15\\microsoft.extensions.dependencyinjection.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.15\\microsoft.extensions.dependencyinjection.abstractions.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.features\\10.0.15\\microsoft.extensions.features.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.logging\\10.0.15\\microsoft.extensions.logging.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.15\\microsoft.extensions.logging.abstractions.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.options\\10.0.15\\microsoft.extensions.options.10.0.15.nupkg.sha512",
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.15\\microsoft.extensions.primitives.10.0.15.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1903",
-      "level": "Warning",
-      "message": "Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.5 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p",
-      "projectPath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Client\\VesperaHub.Client.csproj",
-      "warningLevel": 1,
-      "filePath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Client\\VesperaHub.Client.csproj",
-      "libraryId": "Microsoft.AspNetCore.SignalR.Common",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    }
-  ]
+  "logs": []
 }

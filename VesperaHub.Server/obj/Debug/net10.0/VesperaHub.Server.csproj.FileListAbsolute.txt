@@ -34,3 +34,4 @@ c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\refint\Ve
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\VesperaHub.Server.pdb
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\VesperaHub.Server.genruntimeconfig.cache
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\ref\VesperaHub.Server.dll
+c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
