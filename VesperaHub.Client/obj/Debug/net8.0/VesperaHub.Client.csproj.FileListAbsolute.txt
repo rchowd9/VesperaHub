@@ -1,0 +1,6 @@
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net8.0\VesperaHub.Client.csproj.AssemblyReference.cache
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net8.0\VesperaHub.Client.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net8.0\VesperaHub.Client.AssemblyInfoInputs.cache
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net8.0\VesperaHub.Client.AssemblyInfo.cs
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net8.0\VesperaHub.Client.csproj.CoreCompileInputs.cache
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net8.0\VesperaHub.Client.sourcelink.json
