@@ -1,77 +1,89 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using System.Security.Claims;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using VesperaHub.Server.Data;
+using VesperaHub.Server.Endpoints;
 using VesperaHub.Server.Hubs;
+using VesperaHub.Server.Options;
 using VesperaHub.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-const string jwtSigningKey = "SuperSecretJwtSigningKeyForVesperaHub2026!";
-var keyBytes = Encoding.UTF8.GetBytes(jwtSigningKey);
+// ---- Configuration ----
+var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+if (jwt.Key.Length < 32)
+    throw new InvalidOperationException("Jwt:Key must be at least 32 characters.");
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
-builder.Services.AddSingleton<MessageHistoryService>();
+// ---- Services ----
+builder.Services.AddDbContext<VesperaDbContext>(o =>
+    o.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=vesperahub.db"));
+
 builder.Services.AddSingleton<EncryptionService>();
-builder.Services.AddSignalR();
+builder.Services.AddSingleton<PresenceTracker>();
+builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
+
+builder.Services.AddSignalR(o => o.EnableDetailedErrors = builder.Environment.IsDevelopment());
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = TokenService.CreateSigningKey(jwt.Key),
+            NameClaimType = TokenService.NameClaim,
+            ClockSkew = TimeSpan.FromMinutes(1),
         };
 
-        // Allow SignalR WebSockets to pass JWT via query string
+        // Browsers can't set headers on WebSocket requests, so SignalR sends the token in the query string.
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
                 var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
-                {
+                if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/chathub"))
                     context.Token = accessToken;
-                }
                 return Task.CompletedTask;
-            }
+            },
         };
     });
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.AddPolicy(AuthEndpoints.RateLimitPolicy, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+});
+
 var app = builder.Build();
 
+// ---- Database ----
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<VesperaDbContext>().Database.EnsureCreated();
+}
+
+// ---- Pipeline ----
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapPost("/api/auth/login", (LoginRequest req) =>
-{
-    if (string.IsNullOrWhiteSpace(req.Username) || req.Password != "vespera123")
-        return Results.Unauthorized();
-
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var tokenDescriptor = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, req.Username) }),
-        Expires = DateTime.UtcNow.AddHours(2),
-        SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(keyBytes),
-            SecurityAlgorithms.HmacSha256Signature)
-    };
-
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-    return Results.Ok(new { Token = tokenHandler.WriteToken(token) });
-});
-
+app.MapAuthEndpoints();
+app.MapRoomEndpoints();
 app.MapHub<ChatHub>("/chathub");
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
-app.Run("https://localhost:5001");
-
-public record LoginRequest(string Username, string Password);
+app.Run();

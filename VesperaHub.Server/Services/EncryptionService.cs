@@ -3,45 +3,54 @@ using System.Text;
 
 namespace VesperaHub.Server.Services;
 
-public class EncryptionService
+/// <summary>
+/// Encrypts message content at rest with AES-256-GCM (authenticated encryption).
+/// Output format (Base64): nonce (12 bytes) | tag (16 bytes) | ciphertext.
+/// </summary>
+public sealed class EncryptionService
 {
-    // 32-byte key for AES-256 (In production, load from Azure Key Vault / environment secrets)
-    private static readonly byte[] Key = Encoding.UTF8.GetBytes("VesperaHubSecretKey2026!@#123456");
+    private const int NonceSize = 12;
+    private const int TagSize = 16;
+    private readonly byte[] _key;
+
+    public EncryptionService(IConfiguration config)
+    {
+        var base64 = config["Encryption:Key"]
+            ?? throw new InvalidOperationException("Encryption:Key is not configured.");
+        _key = Convert.FromBase64String(base64);
+        if (_key.Length != 32)
+            throw new InvalidOperationException("Encryption:Key must be a Base64-encoded 32-byte key.");
+    }
 
     public string Encrypt(string plainText)
     {
-        using var aes = Aes.Create();
-        aes.Key = Key;
-        aes.GenerateIV();
+        byte[] plain = Encoding.UTF8.GetBytes(plainText);
+        byte[] buffer = new byte[NonceSize + TagSize + plain.Length];
+        Span<byte> nonce = buffer.AsSpan(0, NonceSize);
+        Span<byte> tag = buffer.AsSpan(NonceSize, TagSize);
+        Span<byte> cipher = buffer.AsSpan(NonceSize + TagSize);
 
-        using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-        byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
-        byte[] cipherBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+        RandomNumberGenerator.Fill(nonce);
+        using var aes = new AesGcm(_key, TagSize);
+        aes.Encrypt(nonce, plain, cipher, tag);
 
-        // Prepend IV to ciphertext so the receiver can decrypt it
-        byte[] combined = new byte[aes.IV.Length + cipherBytes.Length];
-        Buffer.BlockCopy(aes.IV, 0, combined, 0, aes.IV.Length);
-        Buffer.BlockCopy(cipherBytes, 0, combined, aes.IV.Length, cipherBytes.Length);
-
-        return Convert.ToBase64String(combined);
+        return Convert.ToBase64String(buffer);
     }
 
     public string Decrypt(string encryptedBase64)
     {
-        byte[] combined = Convert.FromBase64String(encryptedBase64);
-        using var aes = Aes.Create();
-        aes.Key = Key;
+        byte[] buffer = Convert.FromBase64String(encryptedBase64);
+        if (buffer.Length < NonceSize + TagSize)
+            throw new CryptographicException("Ciphertext is too short.");
 
-        byte[] iv = new byte[aes.BlockSize / 8];
-        byte[] cipherBytes = new byte[combined.Length - iv.Length];
+        ReadOnlySpan<byte> nonce = buffer.AsSpan(0, NonceSize);
+        ReadOnlySpan<byte> tag = buffer.AsSpan(NonceSize, TagSize);
+        ReadOnlySpan<byte> cipher = buffer.AsSpan(NonceSize + TagSize);
+        byte[] plain = new byte[cipher.Length];
 
-        Buffer.BlockCopy(combined, 0, iv, 0, iv.Length);
-        Buffer.BlockCopy(combined, iv.Length, cipherBytes, 0, cipherBytes.Length);
-        aes.IV = iv;
+        using var aes = new AesGcm(_key, TagSize);
+        aes.Decrypt(nonce, cipher, tag, plain);
 
-        using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-        byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
-
-        return Encoding.UTF8.GetString(plainBytes);
+        return Encoding.UTF8.GetString(plain);
     }
 }
