@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4Li7CbMZ6PE=",
+  "dgSpecHash": "gGoIeUPZtmI=",
   "success": true,
-  "projectFilePath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
+  "projectFilePath": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.0\\microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.identitymodel.abstractions\\7.0.3\\microsoft.identitymodel.abstractions.7.0.3.nupkg.sha512",
