@@ -1,6 +1,6 @@
 # VesperaHub
 
-A real-time encrypted chat app built with ASP.NET Core SignalR and .NET 8. Users log in to get a JWT and connect to a SignalR hub. Each client encrypts its messages with AES-256 before sending them, so the server only stores and relays ciphertext.
+A real-time encrypted chat app built with ASP.NET Core SignalR and .NET 10. Users log in to get a JWT and connect to a SignalR hub. Each client encrypts its messages with AES-256 before sending them, so the server only stores and relays ciphertext.
 
 ## Projects
 
@@ -32,7 +32,7 @@ VesperaHub/
 
 ## Requirements
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - A trusted HTTPS development certificate:
 
   ```bash
@@ -54,6 +54,12 @@ dotnet run --project VesperaHub.Client
 ```
 
 Enter any username and the password `vespera123`. Type messages and press Enter to send them. Type `/quit` to exit.
+
+## Troubleshooting
+
+**"An Application Control policy has blocked this file"** (Windows 11): Smart App Control is blocking the unsigned binaries you built locally. Turn it off in Windows Security → App & browser control → Smart App Control settings. On some Windows versions it can't be turned back on without resetting Windows.
+
+**"You must install or update .NET to run this application"**: the ASP.NET Core 10 runtime is missing. Install the .NET 10 SDK, which includes it.
 
 ## Security notes
 
