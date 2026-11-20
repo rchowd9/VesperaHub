@@ -50,3 +50,28 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapPost("/api/auth/login", (LoginRequest req) =>
+{
+    if (string.IsNullOrWhiteSpace(req.Username) || req.Password != "vespera123")
+        return Results.Unauthorized();
+
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, req.Username) }),
+        Expires = DateTime.UtcNow.AddHours(2),
+        SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(keyBytes),
+            SecurityAlgorithms.HmacSha256Signature)
+    };
+
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    return Results.Ok(new { Token = tokenHandler.WriteToken(token) });
+});
+
+app.MapHub<ChatHub>("/chathub");
+
+app.Run("https://localhost:5001");
+
+public record LoginRequest(string Username, string Password);
