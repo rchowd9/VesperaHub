@@ -67,7 +67,16 @@ class Program
         }
 
         PrintInfo($"Connected as {_me}. Type /help for commands.");
-        await JoinAsync(connection, "general");
+        try
+        {
+            await JoinAsync(connection, "general");
+        }
+        catch (HubException ex) when (ex.Message.Contains("Method does not exist"))
+        {
+            PrintError("The server is running an older version of Vespera Hub. Stop it, then start it again with: dotnet run --project VesperaHub.Server");
+            await connection.StopAsync();
+            return 1;
+        }
 
         while (true)
         {
