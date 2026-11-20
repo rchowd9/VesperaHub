@@ -28,3 +28,7 @@ c:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net10.0\refint\Ve
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net10.0\VesperaHub.Client.pdb
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net10.0\VesperaHub.Client.genruntimeconfig.cache
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Client\obj\Debug\net10.0\ref\VesperaHub.Client.dll
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.deps.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.runtimeconfig.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.dll
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.pdb

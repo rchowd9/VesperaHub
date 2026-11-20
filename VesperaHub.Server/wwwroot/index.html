@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vespera Hub</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Login / register -->
+  <section id="auth-view" class="auth">
+    <form id="auth-form" class="auth-card" novalidate>
+      <div class="logo">V</div>
+      <h1>Vespera Hub</h1>
+      <p class="muted">Real-time chat with rooms and direct messages</p>
+
+      <label for="auth-username">Username</label>
+      <input id="auth-username" autocomplete="username" maxlength="20" required>
+
+      <label for="auth-password">Password</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required>
+
+      <p id="auth-error" class="error" hidden></p>
+
+      <div class="auth-actions">
+        <button type="submit" data-mode="login">Log in</button>
+        <button type="submit" data-mode="register" class="secondary">Create account</button>
+      </div>
+      <p class="hint">New here? Pick a username (3–20 letters, numbers or _) and a password of 8+ characters, then choose <b>Create account</b>.</p>
+    </form>
+  </section>
+
+  <!-- Chat -->
+  <section id="chat-view" class="chat" hidden>
+    <aside class="sidebar">
+      <header class="brand"><span class="logo small">V</span> Vespera Hub</header>
+
+      <div class="section-title">Rooms</div>
+      <ul id="room-list" class="nav-list"></ul>
+      <form id="new-room-form" class="inline-form">
+        <input id="new-room-name" placeholder="new-room" maxlength="32" aria-label="New room name">
+        <button title="Create room" aria-label="Create room">+</button>
+      </form>
+      <p id="room-error" class="error small" hidden></p>
+
+      <div class="section-title">Direct messages</div>
+      <ul id="dm-list" class="nav-list"></ul>
+      <p id="dm-empty" class="muted small pad">Click a name in the member list to start a conversation.</p>
+
+      <footer class="me">
+        <span class="avatar" id="me-avatar"></span>
+        <span id="me-name" class="me-name"></span>
+        <button id="logout-btn" class="link">Log out</button>
+      </footer>
+    </aside>
+
+    <main class="conversation">
+      <header class="conv-header">
+        <div>
+          <h2 id="conv-title"></h2>
+          <p id="conv-subtitle" class="muted small"></p>
+        </div>
+        <span id="conn-status" class="status"></span>
+      </header>
+      <ol id="messages" class="messages" aria-live="polite"></ol>
+      <div id="typing" class="typing"></div>
+      <form id="composer" class="composer">
+        <textarea id="composer-input" rows="1" maxlength="2000" placeholder="Message" aria-label="Message"></textarea>
+        <button>Send</button>
+      </form>
+    </main>
+
+    <aside class="members">
+      <div class="section-title" id="members-title">Online in room</div>
+      <ul id="member-list" class="nav-list"></ul>
+    </aside>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

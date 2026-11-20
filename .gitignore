@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+
+# Local SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+# IDE / OS
+.vs/
+.vscode/
+*.user
+.DS_Store
