@@ -161,3 +161,10 @@ c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\ru\Micros
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\appsettings.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.staticwebassets.runtime.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.staticwebassets.endpoints.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.deps.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.runtimeconfig.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.dll
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.pdb

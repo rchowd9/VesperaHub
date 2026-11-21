@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "itgXSZNnlDQ=",
+  "dgSpecHash": "avah81hnwDg=",
   "success": true,
-  "projectFilePath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
+  "projectFilePath": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Home\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\10.0.15\\microsoft.aspnetcore.authentication.jwtbearer.10.0.15.nupkg.sha512",
