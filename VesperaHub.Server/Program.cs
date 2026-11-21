@@ -18,10 +18,17 @@ if (jwt.Key.Length < 32)
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
 // ---- Services ----
-builder.Services.AddDbContext<VesperaDbContext>(o =>
-    o.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=vesperahub.db"));
+// Resolve a relative SQLite path against the content root so the database location
+// doesn't depend on which folder the server was started from.
+var sqlite = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(
+    builder.Configuration.GetConnectionString("Default") ?? "Data Source=vesperahub.db");
+if (!Path.IsPathRooted(sqlite.DataSource) && sqlite.DataSource != ":memory:")
+    sqlite.DataSource = Path.Combine(builder.Environment.ContentRootPath, sqlite.DataSource);
+builder.Services.AddDbContext<VesperaDbContext>(o => o.UseSqlite(sqlite.ToString()));
 
 builder.Services.AddSingleton<EncryptionService>();
+builder.Services.AddSingleton<MessageMapper>();
+builder.Services.AddSingleton<ChatRateLimiter>();
 builder.Services.AddSingleton<PresenceTracker>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
@@ -70,7 +77,9 @@ var app = builder.Build();
 // ---- Database ----
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<VesperaDbContext>().Database.EnsureCreated();
+    SchemaUpgrader.Upgrade(
+        scope.ServiceProvider.GetRequiredService<VesperaDbContext>(),
+        scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Database"));
 }
 
 // ---- Pipeline ----
@@ -83,6 +92,7 @@ app.UseAuthorization();
 
 app.MapAuthEndpoints();
 app.MapRoomEndpoints();
+app.MapUploadEndpoints();
 app.MapHub<ChatHub>("/chathub");
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 

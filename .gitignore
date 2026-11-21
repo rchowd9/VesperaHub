@@ -2,10 +2,11 @@
 bin/
 obj/
 
-# Local SQLite database
+# Local SQLite database and uploaded files
 *.db
 *.db-shm
 *.db-wal
+App_Data/
 
 # IDE / OS
 .vs/

@@ -8,6 +8,8 @@ public class VesperaDbContext(DbContextOptions<VesperaDbContext> options) : DbCo
     public DbSet<User> Users => Set<User>();
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<Message> Messages => Set<Message>();
+    public DbSet<Attachment> Attachments => Set<Attachment>();
+    public DbSet<Reaction> Reactions => Set<Reaction>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -36,8 +38,23 @@ public class VesperaDbContext(DbContextOptions<VesperaDbContext> options) : DbCo
             e.HasOne(m => m.Room).WithMany().HasForeignKey(m => m.RoomId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(m => m.Sender).WithMany().HasForeignKey(m => m.SenderId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(m => m.Recipient).WithMany().HasForeignKey(m => m.RecipientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(m => m.ReplyTo).WithMany().HasForeignKey(m => m.ReplyToId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(m => m.Attachment).WithMany().HasForeignKey(m => m.AttachmentId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(m => new { m.RoomId, m.Id });
             e.HasIndex(m => new { m.SenderId, m.RecipientId });
+        });
+
+        model.Entity<Attachment>(e =>
+        {
+            e.Property(a => a.FileName).HasMaxLength(120);
+            e.HasOne(a => a.Uploader).WithMany().HasForeignKey(a => a.UploaderId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        model.Entity<Reaction>(e =>
+        {
+            e.HasKey(r => new { r.MessageId, r.UserId, r.Emoji });
+            e.HasOne(r => r.Message).WithMany(m => m.Reactions).HasForeignKey(r => r.MessageId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

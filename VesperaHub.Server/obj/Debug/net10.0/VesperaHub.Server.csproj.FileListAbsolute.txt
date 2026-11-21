@@ -75,9 +75,6 @@ C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv\VesperaHub.Server.runtimeconfig.json
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv\VesperaHub.Server.dll
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv\VesperaHub.Server.pdb
-c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\3i4lefikmd-{0}-kodzfa8y8g-kodzfa8y8g.gz
-c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\u3uyc9mmw9-{0}-spzq64wull-spzq64wull.gz
-c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\xj4wk99zds-{0}-gd6wer9jx4-gd6wer9jx4.gz
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\Humanizer.dll
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\Microsoft.Build.Framework.dll
 c:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\Microsoft.CodeAnalysis.dll
@@ -168,3 +165,13 @@ C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.runtimeconfig.json
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.dll
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\ef\VesperaHub.Server.pdb
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\appsettings.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.staticwebassets.runtime.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.staticwebassets.endpoints.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.deps.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.runtimeconfig.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.dll
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.pdb
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\3i4lefikmd-{0}-bu4jfbgkku-bu4jfbgkku.gz
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\u3uyc9mmw9-{0}-s81xj37wzq-s81xj37wzq.gz
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\xj4wk99zds-{0}-u8wbfhcuzg-u8wbfhcuzg.gz

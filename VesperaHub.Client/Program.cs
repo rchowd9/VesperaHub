@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.SignalR.Client;
 namespace VesperaHub.Client;
 
 /// <summary>
-/// Console client for Vespera Hub. Usage: dotnet run --project VesperaHub.Client [serverUrl]
+/// Console client for Vespera Hub.
+/// Usage: dotnet run --project VesperaHub.Client [-- https://server:port]
 /// </summary>
 class Program
 {
+    private const string DefaultServerUrl = "https://localhost:5001";
     private static readonly object ConsoleLock = new();
     private static string _me = "";
     private static string _room = "";
@@ -18,7 +20,8 @@ class Program
     static async Task<int> Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        string serverUrl = (args.FirstOrDefault() ?? Environment.GetEnvironmentVariable("VESPERA_URL") ?? "https://localhost:5001").TrimEnd('/');
+
+        string serverUrl = ResolveServerUrl(args);
         using var http = new HttpClient { BaseAddress = new Uri(serverUrl) };
 
         Console.WriteLine($"Vespera Hub console client — {serverUrl}");
@@ -35,18 +38,33 @@ class Program
 
         connection.On<MessageDto>("MessageReceived", m =>
         {
-            if (string.Equals(m.Room, _room, StringComparison.OrdinalIgnoreCase))
-                PrintMessage(m.SentAt, m.Sender, m.Content, ConsoleColor.Cyan);
+            if (m.Recipient is not null)
+            {
+                string label = IsMe(m.Sender) ? $"you → {m.Recipient}" : $"{m.Sender} → you";
+                PrintMessage(m, $"[DM] {label}", ConsoleColor.Magenta);
+            }
+            else if (string.Equals(m.Room, _room, StringComparison.OrdinalIgnoreCase))
+            {
+                PrintMessage(m, m.Sender, ConsoleColor.Cyan);
+            }
+            else if (!IsMe(m.Sender) && m.Content.Contains($"@{_me}", StringComparison.OrdinalIgnoreCase))
+            {
+                PrintInfo($"{m.Sender} mentioned you in #{m.Room}: {m.Content}");
+            }
         });
-        connection.On<DirectMessageDto>("DirectMessageReceived", m =>
+        connection.On<MessageDto>("MessageUpdated", m =>
         {
-            string label = m.Sender.Equals(_me, StringComparison.OrdinalIgnoreCase) ? $"you → {m.Recipient}" : $"{m.Sender} → you";
-            PrintMessage(m.SentAt, $"[DM] {label}", m.Content, ConsoleColor.Magenta);
+            bool visible = m.Recipient is not null || string.Equals(m.Room, _room, StringComparison.OrdinalIgnoreCase);
+            if (!visible) return;
+            if (m.Deleted)
+                PrintInfo($"{m.Sender} deleted a message.");
+            else if (m.EditedAt is { } edited && DateTime.UtcNow - edited < TimeSpan.FromSeconds(10))
+                PrintInfo($"{m.Sender} edited a message: {m.Content}");
         });
         connection.On<string, List<string>>("PresenceChanged", (room, users) =>
         {
             if (string.Equals(room, _room, StringComparison.OrdinalIgnoreCase))
-                PrintInfo($"In #{room}: {string.Join(", ", users)}");
+                PrintInfo($"Viewing #{room}: {string.Join(", ", users)}");
         });
         connection.On<RoomDto>("RoomCreated", r => PrintInfo($"New room created: #{r.Name}"));
         connection.Reconnecting += _ => { PrintInfo("Connection lost, reconnecting…"); return Task.CompletedTask; };
@@ -71,9 +89,9 @@ class Program
         {
             await JoinAsync(connection, "general");
         }
-        catch (HubException ex) when (ex.Message.Contains("Method does not exist"))
+        catch (HubException ex) when (ex.Message.Contains("Method does not exist") || ex.Message.Contains("arguments"))
         {
-            PrintError("The server is running an older version of Vespera Hub. Stop it, then start it again with: dotnet run --project VesperaHub.Server");
+            PrintError("The server is running a different version of Vespera Hub. Stop it, then start it again with: dotnet run --project VesperaHub.Server");
             await connection.StopAsync();
             return 1;
         }
@@ -89,7 +107,7 @@ class Program
             {
                 if (!input.StartsWith('/'))
                 {
-                    await connection.InvokeAsync("SendMessage", input);
+                    await SendAsync(connection, $"room:{_room}", input);
                     continue;
                 }
 
@@ -108,7 +126,7 @@ class Program
                     case "/rooms":
                         var rooms = await http.GetFromJsonAsync<List<RoomDto>>("/api/rooms") ?? [];
                         foreach (var r in rooms)
-                            PrintInfo($"#{r.Name,-16} {r.Online} online   {r.Description}");
+                            PrintInfo($"#{r.Name,-16} {r.Online} viewing   {r.Description}");
                         break;
 
                     case "/join" when parts.Length >= 2:
@@ -124,14 +142,22 @@ class Program
                         break;
 
                     case "/dm" when parts.Length == 3:
-                        await connection.InvokeAsync("SendDirectMessage", parts[1], parts[2]);
+                        await SendAsync(connection, $"dm:{parts[1]}", parts[2]);
                         break;
 
                     case "/history" when parts.Length >= 2:
-                        var dms = await connection.InvokeAsync<List<DirectMessageDto>>("GetDirectHistory", parts[1]);
+                        var page = await connection.InvokeAsync<HistoryPage>("GetHistory", $"dm:{parts[1]}", null);
                         PrintInfo($"--- Direct messages with {parts[1]} ---");
-                        foreach (var m in dms)
-                            PrintMessage(m.SentAt, m.Sender, m.Content, ConsoleColor.Magenta);
+                        foreach (var m in page.Messages)
+                            PrintMessage(m, m.Sender, ConsoleColor.Magenta);
+                        break;
+
+                    case "/search" when parts.Length >= 2:
+                        string query = input[(parts[0].Length + 1)..].Trim();
+                        var results = await connection.InvokeAsync<List<MessageDto>>("Search", query);
+                        PrintInfo(results.Count == 0 ? $"No messages match \"{query}\"." : $"--- {results.Count} result(s) for \"{query}\" ---");
+                        foreach (var m in results.AsEnumerable().Reverse())
+                            PrintMessage(m, m.Room is not null ? $"#{m.Room} {m.Sender}" : $"[DM] {m.Sender}", ConsoleColor.Cyan);
                         break;
 
                     default:
@@ -153,6 +179,25 @@ class Program
         return 0;
     }
 
+    /// <summary>
+    /// Uses the first argument or VESPERA_URL if it's a valid http(s) URL, otherwise the default.
+    /// (Running "dotnet run VesperaHub.Client" passes "VesperaHub.Client" as an argument, which is not a URL.)
+    /// </summary>
+    private static string ResolveServerUrl(string[] args)
+    {
+        foreach (string? candidate in new[] { args.FirstOrDefault(), Environment.GetEnvironmentVariable("VESPERA_URL") })
+        {
+            if (string.IsNullOrWhiteSpace(candidate)) continue;
+            if (Uri.TryCreate(candidate.Trim(), UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
+                return uri.GetLeftPart(UriPartial.Authority);
+            WriteColored($"Ignoring \"{candidate}\": not a server URL (expected something like {DefaultServerUrl}).", ConsoleColor.DarkYellow);
+        }
+        return DefaultServerUrl;
+    }
+
+    private static Task SendAsync(HubConnection connection, string conversation, string content) =>
+        connection.InvokeAsync<MessageDto>("SendMessage", new SendMessageRequest(conversation, content, null, null));
+
     private static async Task<AuthResponse?> AuthenticateAsync(HttpClient http)
     {
         while (true)
@@ -173,6 +218,7 @@ class Program
             catch (HttpRequestException ex)
             {
                 PrintError($"Couldn't reach the server: {ex.Message}");
+                PrintError("Is it running? Start it with: dotnet run --project VesperaHub.Server");
                 return null;
             }
 
@@ -187,9 +233,9 @@ class Program
     {
         var result = await connection.InvokeAsync<JoinRoomResult>("JoinRoom", room);
         _room = result.Room;
-        PrintInfo($"--- #{result.Room} ({result.Members.Count} online: {string.Join(", ", result.Members)}) ---");
-        foreach (var m in result.Messages)
-            PrintMessage(m.SentAt, m.Sender, m.Content, ConsoleColor.Cyan);
+        PrintInfo($"--- #{result.Room} ({result.Members.Count} viewing: {string.Join(", ", result.Members)}) ---");
+        foreach (var m in result.History.Messages)
+            PrintMessage(m, m.Sender, ConsoleColor.Cyan);
     }
 
     private static string ReadPassword()
@@ -235,6 +281,8 @@ class Program
         return i >= 0 ? message[(i + "HubException: ".Length)..] : message;
     }
 
+    private static bool IsMe(string name) => string.Equals(name, _me, StringComparison.OrdinalIgnoreCase);
+
     private static void PrintHelp() => PrintInfo("""
         Commands:
           <text>                 send a message to the current room
@@ -243,22 +291,33 @@ class Program
           /create <room> [desc]  create a room and join it
           /dm <user> <message>   send a direct message
           /history <user>        show direct messages with a user
+          /search <text>         search messages
           /help                  show this help
           /quit                  exit
+        Replies, reactions, edits, uploads and more are available in the web app.
         """);
 
-    private static void PrintMessage(DateTime sentAt, string sender, string content, ConsoleColor color)
+    private static void PrintMessage(MessageDto m, string label, ConsoleColor color)
     {
+        string text = m.Deleted ? "(deleted)" : m.Content;
+        if (m.Attachment is { } a) text += $" [📎 {a.FileName}]";
+        if (m.EditedAt is not null && !m.Deleted) text += " (edited)";
+        if (m.Reactions.Count > 0) text += "  " + string.Join(" ", m.Reactions.Select(r => $"{r.Emoji}{r.Users.Count}"));
+
         lock (ConsoleLock)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write($"[{sentAt.ToLocalTime():HH:mm}] ");
+            Console.Write($"[{m.SentAt.ToLocalTime():HH:mm}] ");
+            if (m.ReplyTo is { } reply)
+                Console.Write($"(↱ {reply.Sender}: {Truncate(reply.Snippet, 30)}) ");
             Console.ForegroundColor = color;
-            Console.Write(sender);
+            Console.Write(label);
             Console.ResetColor();
-            Console.WriteLine($": {content}");
+            Console.WriteLine($": {text}");
         }
     }
+
+    private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max] + "…";
 
     private static void PrintInfo(string text) => WriteColored(text, ConsoleColor.DarkYellow);
     private static void PrintError(string text) => WriteColored($"[!] {text}", ConsoleColor.Red);
@@ -276,7 +335,12 @@ class Program
     record AuthResponse(string Token, string Username, DateTime ExpiresAt);
     record ErrorResponse(string? Error);
     record RoomDto(string Name, string Description, int Online);
-    record MessageDto(long Id, string Room, string Sender, string Content, DateTime SentAt);
-    record DirectMessageDto(long Id, string Sender, string Recipient, string Content, DateTime SentAt);
-    record JoinRoomResult(string Room, List<MessageDto> Messages, List<string> Members);
+    record AttachmentDto(Guid Id, string Url, string FileName, string ContentType, long Size, bool IsImage);
+    record ReplyPreviewDto(long Id, string Sender, string Snippet);
+    record ReactionDto(string Emoji, List<string> Users);
+    record MessageDto(long Id, string? Room, string Sender, string? Recipient, string Content, DateTime SentAt,
+        DateTime? EditedAt, bool Deleted, ReplyPreviewDto? ReplyTo, AttachmentDto? Attachment, List<ReactionDto> Reactions);
+    record HistoryPage(List<MessageDto> Messages, bool HasMore);
+    record JoinRoomResult(string Room, List<string> Members, HistoryPage History);
+    record SendMessageRequest(string Conversation, string? Content, long? ReplyToId, Guid? AttachmentId);
 }

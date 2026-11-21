@@ -1,7 +1,7 @@
 namespace VesperaHub.Server.Services;
 
 /// <summary>
-/// Tracks which user owns each SignalR connection and which room that connection is in.
+/// Tracks which user owns each SignalR connection and which room that connection is viewing.
 /// A user can have several connections (e.g. two browser tabs).
 /// </summary>
 public sealed class PresenceTracker
@@ -14,7 +14,7 @@ public sealed class PresenceTracker
         lock (_lock) _connections[connectionId] = (user, null);
     }
 
-    /// <summary>Removes the connection and returns the room it was in, if any.</summary>
+    /// <summary>Removes the connection and returns the room it was viewing, if any.</summary>
     public string? Disconnect(string connectionId)
     {
         lock (_lock)
@@ -23,8 +23,8 @@ public sealed class PresenceTracker
         }
     }
 
-    /// <summary>Moves the connection to a room and returns the room it was in before, if any.</summary>
-    public string? SetRoom(string connectionId, string user, string room)
+    /// <summary>Sets the room the connection is viewing (null for none) and returns the previous one.</summary>
+    public string? SetRoom(string connectionId, string user, string? room)
     {
         lock (_lock)
         {
@@ -34,9 +34,17 @@ public sealed class PresenceTracker
         }
     }
 
-    public string? GetRoom(string connectionId)
+    public IReadOnlyList<string> AllConnections()
     {
-        lock (_lock) return _connections.TryGetValue(connectionId, out var entry) ? entry.Room : null;
+        lock (_lock) return _connections.Keys.ToList();
+    }
+
+    public IReadOnlyList<string> ConnectionsInRoom(string room)
+    {
+        lock (_lock)
+        {
+            return _connections.Where(c => c.Value.Room == room).Select(c => c.Key).ToList();
+        }
     }
 
     public IReadOnlyList<string> UsersInRoom(string room)

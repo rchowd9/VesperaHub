@@ -23,7 +23,7 @@ public static partial class RoomEndpoints
             return rooms.Select(r => new RoomDto(r.Name, r.Description, presence.CountInRoom(r.Name)));
         });
 
-        group.MapPost("/", async (CreateRoomRequest req, VesperaDbContext db, IHubContext<ChatHub> hub) =>
+        group.MapPost("/", async (CreateRoomRequest req, VesperaDbContext db, IHubContext<ChatHub> hub, PresenceTracker presence) =>
         {
             string name = req.Name?.Trim().ToLowerInvariant() ?? "";
             if (!RoomNamePattern().IsMatch(name))
@@ -37,6 +37,10 @@ public static partial class RoomEndpoints
             var room = new Room { Name = name, Description = description, CreatedAt = DateTime.UtcNow };
             db.Rooms.Add(room);
             await db.SaveChangesAsync();
+
+            // Subscribe every connected client to the new room so they get its messages and unread counts.
+            foreach (string connectionId in presence.AllConnections())
+                await hub.Groups.AddToGroupAsync(connectionId, ChatHub.RoomGroup(room.Name));
 
             var dto = new RoomDto(room.Name, room.Description, 0);
             await hub.Clients.All.SendAsync("RoomCreated", dto);

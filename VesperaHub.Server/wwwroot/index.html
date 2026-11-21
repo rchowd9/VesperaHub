@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vespera Hub</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c6cf0'/><text x='16' y='23' font-size='18' font-family='Segoe UI,sans-serif' font-weight='800' text-anchor='middle' fill='white'>V</text></svg>">
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <!-- Login / register -->
+  <!-- ============ Login / register ============ -->
   <section id="auth-view" class="auth">
     <form id="auth-form" class="auth-card" novalidate>
       <div class="logo">V</div>
       <h1>Vespera Hub</h1>
-      <p class="muted">Real-time chat with rooms and direct messages</p>
+      <p class="muted">Real-time chat with rooms, direct messages, reactions and file sharing</p>
 
       <label for="auth-username">Username</label>
       <input id="auth-username" autocomplete="username" maxlength="20" required>
@@ -30,10 +31,14 @@
     </form>
   </section>
 
-  <!-- Chat -->
+  <!-- ============ Chat ============ -->
   <section id="chat-view" class="chat" hidden>
     <aside class="sidebar">
-      <header class="brand"><span class="logo small">V</span> Vespera Hub</header>
+      <header class="brand">
+        <span class="logo small">V</span>
+        <span class="brand-name">Vespera Hub</span>
+        <button id="theme-btn" class="icon-btn" title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
+      </header>
 
       <div class="section-title">Rooms</div>
       <ul id="room-list" class="nav-list"></ul>
@@ -50,31 +55,68 @@
       <footer class="me">
         <span class="avatar" id="me-avatar"></span>
         <span id="me-name" class="me-name"></span>
+        <button id="notify-btn" class="icon-btn" title="Enable desktop notifications" aria-label="Notifications">🔕</button>
         <button id="logout-btn" class="link">Log out</button>
       </footer>
     </aside>
 
-    <main class="conversation">
+    <main class="conversation" id="conversation">
       <header class="conv-header">
-        <div>
+        <div class="conv-title">
           <h2 id="conv-title"></h2>
           <p id="conv-subtitle" class="muted small"></p>
         </div>
+        <form id="search-form" class="search" role="search">
+          <input id="search-input" type="search" placeholder="Search messages" aria-label="Search messages">
+        </form>
         <span id="conn-status" class="status"></span>
       </header>
-      <ol id="messages" class="messages" aria-live="polite"></ol>
+
+      <div class="messages-wrap">
+        <ol id="messages" class="messages" aria-live="polite"></ol>
+        <button id="jump-btn" class="jump" hidden>New messages ↓</button>
+      </div>
+
       <div id="typing" class="typing"></div>
+
+      <div id="composer-context" class="composer-context" hidden>
+        <div id="context-body" class="context-body"></div>
+        <button id="context-cancel" class="icon-btn" title="Cancel" aria-label="Cancel">✕</button>
+      </div>
+
       <form id="composer" class="composer">
-        <textarea id="composer-input" rows="1" maxlength="2000" placeholder="Message" aria-label="Message"></textarea>
-        <button>Send</button>
+        <button type="button" id="attach-btn" class="icon-btn attach" title="Attach a file (or paste / drag and drop)" aria-label="Attach file">📎</button>
+        <input id="file-input" type="file" hidden>
+        <div class="composer-field">
+          <ul id="mention-popup" class="mention-popup" hidden></ul>
+          <textarea id="composer-input" rows="1" maxlength="4000" placeholder="Message" aria-label="Message"></textarea>
+        </div>
+        <button id="send-btn">Send</button>
       </form>
+      <p class="composer-hint muted">**bold** · *italic* · `code` · ```code block``` · @mention · ↑ to edit your last message</p>
+
+      <div id="drop-overlay" class="drop-overlay" hidden>Drop a file to upload</div>
     </main>
 
     <aside class="members">
-      <div class="section-title" id="members-title">Online in room</div>
-      <ul id="member-list" class="nav-list"></ul>
+      <div id="members-panel">
+        <div class="section-title" id="members-title">Online</div>
+        <ul id="member-list" class="nav-list"></ul>
+      </div>
+      <div id="search-panel" hidden>
+        <div class="panel-header">
+          <span class="section-title flush">Search results</span>
+          <button id="search-close" class="icon-btn" title="Close search" aria-label="Close search">✕</button>
+        </div>
+        <p id="search-summary" class="muted small pad"></p>
+        <ul id="search-results" class="search-results"></ul>
+      </div>
     </aside>
   </section>
+
+  <!-- Floating UI -->
+  <div id="reaction-picker" class="reaction-picker" hidden></div>
+  <div id="lightbox" class="lightbox" hidden><img id="lightbox-img" alt=""></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
   <script src="js/app.js"></script>

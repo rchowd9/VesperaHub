@@ -32,3 +32,7 @@ C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.runtimeconfig.json
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.dll
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli\VesperaHub.Client.pdb
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli2\VesperaHub.Client.deps.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli2\VesperaHub.Client.runtimeconfig.json
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli2\VesperaHub.Client.dll
+C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\cli2\VesperaHub.Client.pdb
