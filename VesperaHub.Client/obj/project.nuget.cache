@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JvPKe0AgC4s=",
+  "dgSpecHash": "BqMiKDNUuRA=",
   "success": true,
-  "projectFilePath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Client\\VesperaHub.Client.csproj",
+  "projectFilePath": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Client\\VesperaHub.Client.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\10.0.15\\microsoft.aspnetcore.connections.abstractions.10.0.15.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.http.connections.client\\10.0.15\\microsoft.aspnetcore.http.connections.client.10.0.15.nupkg.sha512",
