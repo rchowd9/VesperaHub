@@ -815,6 +815,31 @@ input.addEventListener("keydown", (e) => {
 
 input.addEventListener("blur", () => setTimeout(closeMentionPopup, 150));
 
+document.querySelectorAll("[data-format]").forEach((button) => {
+  button.addEventListener("mousedown", (e) => e.preventDefault());
+  button.addEventListener("click", () => applyFormat(button.dataset.format));
+});
+
+function applyFormat(format) {
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  const selected = input.value.slice(start, end);
+  let before = "";
+  let after = "";
+  let placeholder = "text";
+
+  if (format === "bold") { before = "**"; after = "**"; }
+  else if (format === "italic") { before = "*"; after = "*"; }
+  else if (format === "code") { before = "`"; after = "`"; }
+  else if (format === "link") { before = "["; after = `](https://)`; placeholder = "link text"; }
+
+  const replacement = selected || placeholder;
+  input.setRangeText(`${before}${replacement}${after}`, start, end, "end");
+  if (!selected) input.setSelectionRange(start + before.length, start + before.length + placeholder.length);
+  input.dispatchEvent(new Event("input"));
+  input.focus();
+}
+
 $("composer").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!state.current || state.uploading) return;
@@ -939,6 +964,7 @@ function renderTyping() {
    Sidebar & members
    ============================================================ */
 function renderRooms() {
+  $("room-count").textContent = String(state.rooms.length);
   $("room-list").replaceChildren(...state.rooms.map((room) => {
     const key = roomKey(room.name);
     return navItem({
@@ -955,6 +981,7 @@ function renderRooms() {
 
 function renderDms() {
   const names = [...state.dms].sort((a, b) => a.localeCompare(b));
+  $("dm-count").textContent = names.length ? String(names.length) : "";
   $("dm-empty").hidden = names.length > 0;
   $("dm-list").replaceChildren(...names.map((name) => {
     const key = dmKey(name);
