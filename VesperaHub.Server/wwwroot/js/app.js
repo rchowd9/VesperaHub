@@ -35,6 +35,7 @@ const state = {
   isTyping: false,
   mention: { open: false, items: [], index: 0, start: 0 },
   pickerFor: null,          // message id the reaction picker is open for
+  drafts: new Map(),        // conversation key -> unsent text
 };
 
 const $ = (id) => document.getElementById(id);
@@ -247,6 +248,7 @@ async function startChat() {
 async function openConversation(key, { keepScroll = false, highlightId = null } = {}) {
   const seq = ++state.openSeq;
   const changed = !state.current || !sameKey(state.current, key);
+  if (changed && state.current) saveDraft();
   state.current = key;
   store.set("sessionStorage", "vespera.lastConversation", key);
   state.unread.delete(key);
@@ -255,6 +257,7 @@ async function openConversation(key, { keepScroll = false, highlightId = null } 
     clearComposerContext();
     clearTyping();
     setTyping(false);
+    restoreDraft();
   }
 
   renderConversationHeader();
@@ -747,9 +750,32 @@ function autoGrow() {
   input.style.overflowY = input.scrollHeight > 180 ? "auto" : "hidden";
 }
 
+function saveDraft() {
+  if (!state.current) return;
+  const text = input.value;
+  if (text) state.drafts.set(state.current, text);
+  else state.drafts.delete(state.current);
+  updateDraftStatus();
+}
+
+function restoreDraft() {
+  input.value = state.drafts.get(state.current) ?? "";
+  autoGrow();
+  updateDraftStatus();
+}
+
+function updateDraftStatus() {
+  const status = $("draft-status");
+  if (!status) return;
+  status.textContent = state.current && state.drafts.has(state.current)
+    ? "Draft saved"
+    : "Enter to send · Shift+Enter for a new line";
+}
+
 input.addEventListener("input", () => {
   autoGrow();
   updateMentionPopup();
+  saveDraft();
   if (input.value.trim()) {
     setTyping(true);
     clearTimeout(state.typingTimer);
@@ -804,6 +830,8 @@ $("composer").addEventListener("submit", async (e) => {
 
   input.value = "";
   autoGrow();
+  state.drafts.delete(state.current);
+  updateDraftStatus();
   closeMentionPopup();
   clearTimeout(state.typingTimer);
   setTyping(false);
