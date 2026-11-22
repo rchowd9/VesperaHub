@@ -36,11 +36,18 @@
     <aside class="sidebar">
       <header class="brand">
         <span class="logo small">V</span>
-        <span class="brand-name">Vespera Hub</span>
+        <span class="brand-name">
+          <strong>Vespera</strong>
+          <small>Community hub</small>
+        </span>
+        <button id="command-btn" class="icon-btn command-btn" title="Open command menu (Ctrl/Cmd+K)" aria-label="Open command menu">⌘ K</button>
         <button id="theme-btn" class="icon-btn" title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
       </header>
 
-      <div class="section-title">Rooms</div>
+      <div class="section-heading">
+        <div class="section-title">Rooms</div>
+        <span id="room-count" class="section-count"></span>
+      </div>
       <ul id="room-list" class="nav-list"></ul>
       <form id="new-room-form" class="inline-form">
         <input id="new-room-name" placeholder="new-room" maxlength="32" aria-label="New room name">
@@ -48,7 +55,10 @@
       </form>
       <p id="room-error" class="error small" hidden></p>
 
-      <div class="section-title">Direct messages</div>
+      <div class="section-heading">
+        <div class="section-title">Direct messages</div>
+        <span id="dm-count" class="section-count"></span>
+      </div>
       <ul id="dm-list" class="nav-list"></ul>
       <p id="dm-empty" class="muted small pad">Click a name in the member list to start a conversation.</p>
 
@@ -70,6 +80,7 @@
           <input id="search-input" type="search" placeholder="Search messages" aria-label="Search messages">
         </form>
         <span id="conn-status" class="status"></span>
+        <button id="details-btn" class="icon-btn details-btn" title="Toggle conversation details" aria-label="Toggle conversation details">ⓘ</button>
       </header>
 
       <div class="messages-wrap">
@@ -85,15 +96,25 @@
       </div>
 
       <form id="composer" class="composer">
-        <button type="button" id="attach-btn" class="icon-btn attach" title="Attach a file (or paste / drag and drop)" aria-label="Attach file">📎</button>
-        <input id="file-input" type="file" hidden>
         <div class="composer-field">
           <ul id="mention-popup" class="mention-popup" hidden></ul>
-          <textarea id="composer-input" rows="1" maxlength="4000" placeholder="Message" aria-label="Message"></textarea>
+          <div class="composer-shell">
+            <div class="format-toolbar" aria-label="Text formatting">
+              <button type="button" data-format="bold" title="Bold" aria-label="Bold"><b>B</b></button>
+              <button type="button" data-format="italic" title="Italic" aria-label="Italic"><i>I</i></button>
+              <button type="button" data-format="code" title="Inline code" aria-label="Inline code">&lt;/&gt;</button>
+              <button type="button" data-format="link" title="Add link" aria-label="Add link">↗</button>
+            </div>
+            <textarea id="composer-input" rows="1" maxlength="4000" placeholder="Message" aria-label="Message"></textarea>
+            <div class="composer-actions">
+              <button type="button" id="attach-btn" class="icon-btn attach" title="Attach a file (or paste / drag and drop)" aria-label="Attach file">＋</button>
+              <input id="file-input" type="file" hidden>
+              <button id="send-btn" class="send-btn" title="Send message" aria-label="Send message">➤</button>
+            </div>
+          </div>
         </div>
-        <button id="send-btn">Send</button>
       </form>
-      <p class="composer-hint muted">**bold** · *italic* · `code` · ```code block``` · @mention · ↑ to edit your last message</p>
+      <p class="composer-hint muted"><span id="draft-status">Enter to send · Shift+Enter for a new line</span><span>↑ to edit · @ to mention</span></p>
 
       <div id="drop-overlay" class="drop-overlay" hidden>Drop a file to upload</div>
     </main>
@@ -117,6 +138,17 @@
   <!-- Floating UI -->
   <div id="reaction-picker" class="reaction-picker" hidden></div>
   <div id="lightbox" class="lightbox" hidden><img id="lightbox-img" alt=""></div>
+  <div id="command-palette" class="command-palette" hidden>
+    <div class="command-backdrop"></div>
+    <section class="command-dialog" role="dialog" aria-modal="true" aria-label="Command menu">
+      <div class="command-search">
+        <span>⌕</span>
+        <input id="command-input" autocomplete="off" placeholder="Jump to a room or person...">
+        <kbd>Esc</kbd>
+      </div>
+      <div id="command-list" class="command-list"></div>
+    </section>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
   <script src="js/app.js"></script>
