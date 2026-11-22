@@ -89,6 +89,6 @@ C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.runtimeconfig.json
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.dll
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\a7dba093-0b2d-44ba-9c71-577d0c661413\scratchpad\srv2\VesperaHub.Server.pdb
-C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\u3uyc9mmw9-{0}-s81xj37wzq-s81xj37wzq.gz
-C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\3i4lefikmd-{0}-ko74h3l8xh-ko74h3l8xh.gz
-C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\xj4wk99zds-{0}-0tic7epfx9-0tic7epfx9.gz
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\3i4lefikmd-{0}-55ospnpcfa-55ospnpcfa.gz
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\u3uyc9mmw9-{0}-l3ezc9of17-l3ezc9of17.gz
+C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\xj4wk99zds-{0}-f5s9c9l7g6-f5s9c9l7g6.gz
