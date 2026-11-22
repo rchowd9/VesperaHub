@@ -1111,6 +1111,86 @@ function highlightInto(target, text, query) {
 }
 
 /* ============================================================
+   Command palette & workspace shortcuts
+   ============================================================ */
+const paletteState = { items: [], index: 0 };
+
+function openCommandPalette() {
+  paletteState.items = [
+    ...state.rooms.map((room) => ({
+      label: `# ${room.name}`,
+      detail: "Room",
+      action: () => openConversation(roomKey(room.name)),
+    })),
+    ...[...state.dms].sort((a, b) => a.localeCompare(b)).map((name) => ({
+      label: `@ ${name}`,
+      detail: state.online.has(lc(name)) ? "Online" : "Direct message",
+      action: () => openConversation(dmKey(name)),
+    })),
+  ];
+  $("command-input").value = "";
+  $("command-palette").hidden = false;
+  paletteState.index = 0;
+  renderCommandItems("");
+  requestAnimationFrame(() => $("command-input").focus());
+}
+
+function closeCommandPalette() {
+  $("command-palette").hidden = true;
+  $("composer-input").focus();
+}
+
+function renderCommandItems(query) {
+  const q = lc(query.trim());
+  const items = paletteState.items.filter((item) => lc(item.label).includes(q));
+  paletteState.index = Math.min(paletteState.index, Math.max(0, items.length - 1));
+  $("command-list").replaceChildren(...items.map((item, index) => {
+    const button = el("button", { type: "button", className: `command-item${index === paletteState.index ? " selected" : ""}` },
+      el("span", {}, item.label),
+      el("span", { className: "command-kind" }, item.detail));
+    button.addEventListener("mouseenter", () => { paletteState.index = index; renderCommandItems($("command-input").value); });
+    button.addEventListener("click", () => { closeCommandPalette(); item.action(); });
+    return button;
+  }));
+  if (!items.length) $("command-list").append(el("p", { className: "muted small pad" }, "No conversations found."));
+}
+
+$("command-btn").addEventListener("click", openCommandPalette);
+$("command-input").addEventListener("input", () => { paletteState.index = 0; renderCommandItems($("command-input").value); });
+$("command-input").addEventListener("keydown", (e) => {
+  const items = [...$("command-list").querySelectorAll(".command-item")];
+  if (e.key === "Escape") { e.prevent(); closeCommandPalette(); }
+  else if (e.key === "Enter" && items.length) {
+    e.preventDefault();
+    items[paletteState.index]?.click();
+  } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    if (items.length) {
+      paletteState.index = (paletteState.index + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length;
+      renderCommandItems($("command-input").value);
+      $("command-list").querySelector(".selected")?.scrollIntoView({ block: "nearest" });
+    }
+  }
+});
+document.querySelector(".command-backdrop").addEventListener("click", closeCommandPalette);
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+    e.preventDefault();
+    if ($("command-palette").hidden) openCommandPalette();
+    else closeCommandPalette();
+  }
+});
+
+$("details-btn").addEventListener("click", () => {
+  if (matchMedia("(max-width: 1100px)").matches) {
+    showSearchPanel(false);
+    document.querySelector(".members").classList.toggle("show-search");
+  } else {
+    document.querySelector(".members").hidden = !document.querySelector(".members").hidden;
+  }
+});
+
+/* ============================================================
    Notifications & title
    ============================================================ */
 function updateNotifyButton() {
