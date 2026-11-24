@@ -12,6 +12,8 @@ const GROUP_WINDOW_MS = 5 * 60 * 1000;
 const state = {
   token: null,
   username: null,
+  profile: null,
+  avatarUrls: new Map(),
   connection: null,
   current: null,            // conversation key, e.g. "room:general"
   openSeq: 0,               // guards against out-of-order loads when switching fast
@@ -135,12 +137,21 @@ $("auth-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const mode = e.submitter?.dataset.mode ?? "login";
   const username = $("auth-username").value.trim();
+  const email = $("auth-email").value.trim();
   const password = $("auth-password").value;
   const error = $("auth-error");
+  const status = $("auth-status");
   error.hidden = true;
+  status.hidden = true;
+  $("resend-verification-btn").hidden = true;
 
   if (!username || !password) {
     error.textContent = "Enter a username and password.";
+    error.hidden = false;
+    return;
+  }
+  if (mode === "register" && !email) {
+    error.textContent = "Enter an email address to create an account.";
     error.hidden = false;
     return;
   }
@@ -148,17 +159,50 @@ $("auth-form").addEventListener("submit", async (e) => {
   const buttons = $("auth-form").querySelectorAll("button");
   buttons.forEach((b) => (b.disabled = true));
   try {
-    const data = await api(`/api/auth/${mode}`, { method: "POST", json: { username, password } });
-    saveSession(data);
-    $("auth-password").value = "";
-    await startChat();
+    if (mode === "register") {
+      const result = await api("/api/auth/register", { method: "POST", json: { username, password, email } });
+      status.textContent = result.message;
+      status.hidden = false;
+      $("resend-verification-btn").hidden = false;
+      $("auth-password").value = "";
+    } else {
+      const data = await api("/api/auth/login", { method: "POST", json: { username, password } });
+      saveSession(data);
+      $("auth-password").value = "";
+      await startChat();
+    }
   } catch (err) {
     error.textContent = err.message;
     error.hidden = false;
+    if (err.status === 403) $("resend-verification-btn").hidden = false;
   } finally {
     buttons.forEach((b) => (b.disabled = false));
   }
 });
+
+$("resend-verification-btn").addEventListener("click", async () => {
+  const error = $("auth-error");
+  const status = $("auth-status");
+  error.hidden = true;
+  status.hidden = true;
+  const email = $("auth-email").value.trim();
+  if (!email) {
+    error.textContent = "Enter the email address for your account first.";
+    error.hidden = false;
+    $("auth-email").focus();
+    return;
+  }
+  try {
+    const result = await api("/api/auth/resend-verification", { method: "POST", json: { email } });
+    status.textContent = result.message;
+    status.hidden = false;
+  } catch (err) {
+    error.textContent = err.message;
+    error.hidden = false;
+  }
+});
+
+$("google-btn").addEventListener("click", () => { window.location.href = "/api/auth/google"; });
 
 $("logout-btn").addEventListener("click", () => logout());
 
@@ -177,6 +221,18 @@ async function logout() {
    Chat startup
    ============================================================ */
 async function startChat() {
+  try {
+    state.profile = await api("/api/profile");
+    state.avatarUrls.set(lc(state.username), state.profile.avatarUrl);
+  } catch (err) {
+    clearSession();
+    $("chat-view").hidden = true;
+    $("auth-view").hidden = false;
+    $("auth-error").textContent = err.message;
+    $("auth-error").hidden = false;
+    return;
+  }
+
   $("auth-view").hidden = true;
   $("chat-view").hidden = false;
   $("me-name").textContent = state.username;
@@ -201,6 +257,7 @@ async function startChat() {
     if (state.current && keyType(state.current) === "dm") renderConversationHeader();
   });
   conn.on("UserTyping", onUserTyping);
+  conn.on("UserProfileUpdated", (username, avatarUrl) => updateAvatar(username, avatarUrl));
   conn.on("RoomCreated", (room) => {
     if (!state.rooms.some((r) => r.name === room.name)) {
       state.rooms.push(room);

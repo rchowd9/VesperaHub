@@ -320,6 +320,46 @@ input:focus, textarea:focus { border-color: var(--accent); }
   .composer-hint { display: none; }
 }
 
+.auth-status {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(62, 207, 142, .25);
+  border-radius: 9px;
+  background: rgba(62, 207, 142, .08);
+  color: var(--ok);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.resend-verification { margin-top: 8px; text-align: left; }
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--border); }
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.google-btn:hover { background: var(--panel-2); }
+.google-btn span { font-size: 17px; font-weight: 800; color: #4285f4; }
+.avatar { overflow: hidden; }
+.avatar img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+.me .icon-btn { flex: none; padding: 7px; }
+
+@media (max-width: 700px) {
+  .me .icon-btn { padding: 6px; }
+}
+
 /* ---------- Refined workspace ---------- */
 :root {
   --panel: #171a24;
