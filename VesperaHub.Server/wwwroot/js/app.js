@@ -14,6 +14,7 @@ const state = {
   username: null,
   profile: null,
   avatarUrls: new Map(),
+  avatarRequests: new Set(),
   connection: null,
   current: null,            // conversation key, e.g. "room:general"
   openSeq: 0,               // guards against out-of-order loads when switching fast
@@ -210,6 +211,9 @@ async function logout() {
   const conn = state.connection;
   state.connection = null;
   clearSession();
+  state.profile = null;
+  state.avatarUrls.clear();
+  state.avatarRequests.clear();
   if (conn) await conn.stop().catch(() => {});
   $("chat-view").hidden = true;
   $("auth-view").hidden = false;
@@ -324,6 +328,7 @@ async function openConversation(key, { keepScroll = false, highlightId = null } 
 
   const type = keyType(key);
   const name = keyName(key);
+  if (type === "dm") loadAvatarProfiles([name]);
   let page;
   try {
     if (type === "room") {
@@ -433,6 +438,7 @@ function renderConversationHeader() {
 function onMessageReceived(m) {
   const key = keyOf(m);
   const mine = isMe(m.sender);
+  loadAvatarProfiles([m.sender]);
   if (m.recipient) {
     const other = mine ? m.recipient : m.sender;
     if (!state.dms.has(other)) { state.dms.add(other); renderDms(); }
@@ -1058,6 +1064,7 @@ function renderDms() {
 
 function setMembers(users) {
   state.members = users;
+  loadAvatarProfiles(users);
   const isRoom = keyType(state.current) === "room";
   $("members-title").textContent = isRoom ? `Online — ${users.length}` : "Conversation";
   if (isRoom) {
@@ -1077,6 +1084,36 @@ function setMembers(users) {
     if (me) item.firstChild.classList.add("member-static");
     return item;
   }));
+}
+
+function loadAvatarProfiles(usernames) {
+  const missing = [...new Set(usernames.filter((name) =>
+    name && !state.avatarUrls.has(lc(name)) && !state.avatarRequests.has(lc(name))))];
+  if (!missing.length) return;
+  missing.forEach((name) => state.avatarRequests.add(lc(name)));
+  api(`/api/profiles?usernames=${encodeURIComponent(missing.join(","))}`)
+    .then((profiles) => {
+      for (const profile of profiles) state.avatarUrls.set(lc(profile.username), profile.avatarUrl);
+      for (const name of missing) if (!state.avatarUrls.has(lc(name))) state.avatarUrls.set(lc(name), null);
+      refreshAvatarNodes(missing);
+    })
+    .catch((err) => {
+      for (const name of missing) state.avatarRequests.delete(lc(name));
+      if (state.current) appendNotice(`Couldn't load profile pictures: ${err.message}`, true);
+    });
+}
+
+function updateAvatar(username, avatarUrl) {
+  state.avatarUrls.set(lc(username), avatarUrl);
+  if (isMe(username)) state.profile = { ...state.profile, avatarUrl };
+  refreshAvatarNodes([username]);
+}
+
+function refreshAvatarNodes(usernames) {
+  const names = new Set(usernames.map(lc));
+  document.querySelectorAll(".avatar[data-username]").forEach((node) => {
+    if (names.has(lc(node.dataset.username))) setAvatar(node, node.dataset.username);
+  });
 }
 
 function navItem({ label, title = "", active = false, unread = 0, mention = false, dot = null, avatarFor = null, count = null, onClick }) {
@@ -1115,6 +1152,37 @@ $("new-room-form").addEventListener("submit", async (e) => {
   } catch (err) {
     error.textContent = err.message;
     error.hidden = false;
+  }
+});
+
+$("profile-picture-btn").addEventListener("click", () => $("profile-picture-input").click());
+$("profile-picture-input").addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  e.target.value = "";
+  if (!file) return;
+  if (file.size > MAX_FILE_BYTES) return appendNotice("Profile pictures can be up to 10 MB.", true);
+  if (!["image/png", "image/jpeg", "image/gif", "image/webp"].includes(file.type))
+    return appendNotice("Choose a PNG, JPEG, GIF, or WebP image.", true);
+
+  const button = $("profile-picture-btn");
+  button.disabled = true;
+  button.title = "Uploading profile picture…";
+  try {
+    const form = new FormData();
+    form.append("file", file, file.name || "profile-picture");
+    const upload = await api("/api/uploads", { method: "POST", body: form });
+    const profile = await api("/api/profile/avatar", {
+      method: "POST",
+      json: { attachmentId: upload.id },
+    });
+    state.profile = profile;
+    updateAvatar(profile.username, profile.avatarUrl);
+    button.title = "Profile picture updated";
+  } catch (err) {
+    button.title = "Change profile picture";
+    appendNotice(`Couldn't update profile picture: ${err.message}`, true);
+  } finally {
+    button.disabled = false;
   }
 });
 
