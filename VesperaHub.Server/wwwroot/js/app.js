@@ -356,12 +356,16 @@ function renderConversationHeader() {
   const name = keyName(key);
   if (keyType(key) === "room") {
     const room = state.rooms.find((r) => r.name === name);
+    $("channel-icon").textContent = "#";
+    $("channel-icon").classList.remove("dm");
     $("conv-title").textContent = `# ${name}`;
-    $("conv-subtitle").textContent = room?.description ?? "";
+    $("conv-subtitle").textContent = room?.description || `${state.members.length} member${state.members.length === 1 ? "" : "s"} · Room`;
     $("composer-input").placeholder = `Message #${name}`;
   } else {
+    $("channel-icon").textContent = name.slice(0, 2).toUpperCase();
+    $("channel-icon").classList.add("dm");
     $("conv-title").textContent = `@ ${name}`;
-    $("conv-subtitle").textContent = state.online.has(lc(name)) ? "● Online" : "Offline";
+    $("conv-subtitle").textContent = state.online.has(lc(name)) ? "Online now" : "Offline";
     $("composer-input").placeholder = `Message ${name}`;
   }
 }
@@ -999,6 +1003,12 @@ function setMembers(users) {
   state.members = users;
   const isRoom = keyType(state.current) === "room";
   $("members-title").textContent = isRoom ? `Online — ${users.length}` : "Conversation";
+  if (isRoom) {
+    const room = state.rooms.find((r) => r.name === keyName(state.current));
+    $("conv-subtitle").textContent = room?.description
+      ? `${room.description} · ${users.length} member${users.length === 1 ? "" : "s"}`
+      : `${users.length} member${users.length === 1 ? "" : "s"} · Room`;
+  }
   $("member-list").replaceChildren(...users.map((user) => {
     const me = isMe(user);
     const item = navItem({
