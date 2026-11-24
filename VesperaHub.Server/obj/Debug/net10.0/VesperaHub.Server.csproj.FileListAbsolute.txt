@@ -97,7 +97,6 @@ C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\2e02871a-0925-4e97-98c3
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\2e02871a-0925-4e97-98c3-008d333123f1\scratchpad\build\VesperaHub.Server.dll
 C:\Users\Home\AppData\Local\Temp\claude\ce1f0615e418fd17\2e02871a-0925-4e97-98c3-008d333123f1\scratchpad\build\VesperaHub.Server.pdb
 C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\3i4lefikmd-{0}-2zpeyx92pv-2zpeyx92pv.gz
-C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\u3uyc9mmw9-{0}-pjh2o2ce9g-pjh2o2ce9g.gz
 C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\xj4wk99zds-{0}-9h9v8m3u8b-9h9v8m3u8b.gz
 C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.Google.dll
 C:\Users\Home\Downloads\VesperaHub\VesperaHub.Server\obj\Debug\net10.0\compressed\u3uyc9mmw9-{0}-dkav2c058q-dkav2c058q.gz
