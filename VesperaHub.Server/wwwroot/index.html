@@ -18,16 +18,23 @@
       <label for="auth-username">Username</label>
       <input id="auth-username" autocomplete="username" maxlength="20" required>
 
+      <label for="auth-email">Email address</label>
+      <input id="auth-email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com">
+
       <label for="auth-password">Password</label>
       <input id="auth-password" type="password" autocomplete="current-password" required>
 
       <p id="auth-error" class="error" hidden></p>
+      <p id="auth-status" class="auth-status" role="status" hidden></p>
 
       <div class="auth-actions">
         <button type="submit" data-mode="login">Log in</button>
         <button type="submit" data-mode="register" class="secondary">Create account</button>
       </div>
-      <p class="hint">New here? Pick a username (3–20 letters, numbers or _) and a password of 8+ characters, then choose <b>Create account</b>.</p>
+      <button type="button" id="resend-verification-btn" class="link resend-verification" hidden>Resend verification email</button>
+      <div class="auth-divider"><span>or</span></div>
+      <button type="button" id="google-btn" class="google-btn" hidden><span aria-hidden="true">G</span> Continue with Google</button>
+      <p class="hint">New here? Choose a username, enter your email and a password of 8+ characters, then create an account. Verify your email before signing in.</p>
     </form>
   </section>
 
@@ -62,9 +69,11 @@
       <ul id="dm-list" class="nav-list"></ul>
       <p id="dm-empty" class="muted small pad">Click a name in the member list to start a conversation.</p>
 
+      <input id="profile-picture-input" type="file" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
       <footer class="me">
         <span class="avatar" id="me-avatar"></span>
         <span id="me-name" class="me-name"></span>
+        <button id="profile-picture-btn" class="icon-btn" title="Change profile picture" aria-label="Change profile picture">📷</button>
         <button id="notify-btn" class="icon-btn" title="Enable desktop notifications" aria-label="Notifications">🔕</button>
         <button id="logout-btn" class="link">Log out</button>
       </footer>
