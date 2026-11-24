@@ -1,5 +1,7 @@
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +18,10 @@ var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOption
 if (jwt.Key.Length < 32)
     throw new InvalidOperationException("Jwt:Key must be at least 32 characters.");
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.SectionName));
+var google = builder.Configuration.GetSection("Authentication:Google");
+bool googleEnabled = !string.IsNullOrWhiteSpace(google["ClientId"]) &&
+    !string.IsNullOrWhiteSpace(google["ClientSecret"]);
 
 // ---- Services ----
 // Resolve a relative SQLite path against the content root so the database location
@@ -31,6 +37,8 @@ builder.Services.AddSingleton<MessageMapper>();
 builder.Services.AddSingleton<ChatRateLimiter>();
 builder.Services.AddSingleton<PresenceTracker>();
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<GoogleLoginHandoff>();
+builder.Services.AddScoped<EmailVerificationService>();
 builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 
 builder.Services.AddSignalR(o => o.EnableDetailedErrors = builder.Environment.IsDevelopment());
@@ -60,6 +68,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             },
         };
     });
+
+if (googleEnabled)
+{
+    builder.Services.AddAuthentication()
+        .AddCookie("External", options =>
+        {
+            options.Cookie.Name = "Vespera.External";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        })
+        .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+        {
+            options.ClientId = google["ClientId"]!;
+            options.ClientSecret = google["ClientSecret"]!;
+            options.SignInScheme = "External";
+            options.Scope.Add("email");
+            options.Scope.Add("profile");
+            options.ClaimActions.MapJsonKey("email_verified", "email_verified");
+            options.ClaimActions.MapJsonKey("picture", "picture");
+        });
+}
 
 builder.Services.AddAuthorization();
 
@@ -91,6 +122,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapProfileEndpoints();
 app.MapRoomEndpoints();
 app.MapUploadEndpoints();
 app.MapHub<ChatHub>("/chathub");
