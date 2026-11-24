@@ -17,6 +17,32 @@ public static class SchemaUpgrader
             return;
         }
 
+        var userColumns = db.Database
+            .SqlQueryRaw<string>("""SELECT "name" AS "Value" FROM pragma_table_info('Users')""")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var newUserColumns = new (string Name, string Sql)[]
+        {
+            ("Email", """ALTER TABLE "Users" ADD COLUMN "Email" TEXT NULL"""),
+            ("NormalizedEmail", """ALTER TABLE "Users" ADD COLUMN "NormalizedEmail" TEXT NULL"""),
+            ("EmailVerified", """ALTER TABLE "Users" ADD COLUMN "EmailVerified" INTEGER NOT NULL DEFAULT 1"""),
+            ("EmailVerificationTokenHash", """ALTER TABLE "Users" ADD COLUMN "EmailVerificationTokenHash" TEXT NULL"""),
+            ("EmailVerificationExpiresAt", """ALTER TABLE "Users" ADD COLUMN "EmailVerificationExpiresAt" TEXT NULL"""),
+            ("GoogleSubject", """ALTER TABLE "Users" ADD COLUMN "GoogleSubject" TEXT NULL"""),
+            ("GooglePictureUrl", """ALTER TABLE "Users" ADD COLUMN "GooglePictureUrl" TEXT NULL"""),
+            ("ProfilePictureId", """ALTER TABLE "Users" ADD COLUMN "ProfilePictureId" TEXT NULL"""),
+        };
+
+        foreach (var (name, sql) in newUserColumns)
+        {
+            if (userColumns.Contains(name)) continue;
+            db.Database.ExecuteSqlRaw(sql);
+            logger.LogInformation("Database upgrade: added Users.{Column}.", name);
+        }
+
+        db.Database.ExecuteSqlRaw("""CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_NormalizedEmail" ON "Users" ("NormalizedEmail")""");
+        db.Database.ExecuteSqlRaw("""CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_GoogleSubject" ON "Users" ("GoogleSubject")""");
+
         db.Database.ExecuteSqlRaw("""
             CREATE TABLE IF NOT EXISTS "Attachments" (
                 "Id" TEXT NOT NULL CONSTRAINT "PK_Attachments" PRIMARY KEY,

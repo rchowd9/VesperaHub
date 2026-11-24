@@ -1,7 +1,13 @@
 namespace VesperaHub.Server.Models;
 
 public record AuthRequest(string Username, string Password);
+public record RegisterRequest(string Username, string Password, string Email);
 public record AuthResponse(string Token, string Username, DateTime ExpiresAt);
+public record EmailRequest(string Email);
+public record GoogleExchangeRequest(string Code);
+public record ProfileDto(string Username, string? Email, bool EmailVerified, string? AvatarUrl);
+public record AvatarRequest(Guid AttachmentId);
+public record PublicProfileDto(string Username, string? AvatarUrl);
 
 public record RoomDto(string Name, string Description, int Online);
 public record CreateRoomRequest(string Name, string? Description);

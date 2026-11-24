@@ -6,6 +6,14 @@ public class User
     public string Username { get; set; } = "";
     public string NormalizedUsername { get; set; } = "";
     public string PasswordHash { get; set; } = "";
+    public string? Email { get; set; }
+    public string? NormalizedEmail { get; set; }
+    public bool EmailVerified { get; set; }
+    public string? EmailVerificationTokenHash { get; set; }
+    public DateTime? EmailVerificationExpiresAt { get; set; }
+    public string? GoogleSubject { get; set; }
+    public string? GooglePictureUrl { get; set; }
+    public Guid? ProfilePictureId { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 

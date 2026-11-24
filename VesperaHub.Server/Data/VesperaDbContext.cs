@@ -18,6 +18,10 @@ public class VesperaDbContext(DbContextOptions<VesperaDbContext> options) : DbCo
             e.Property(u => u.Username).HasMaxLength(20);
             e.Property(u => u.NormalizedUsername).HasMaxLength(20);
             e.HasIndex(u => u.NormalizedUsername).IsUnique();
+            e.Property(u => u.Email).HasMaxLength(254);
+            e.Property(u => u.NormalizedEmail).HasMaxLength(254);
+            e.HasIndex(u => u.NormalizedEmail).IsUnique();
+            e.HasIndex(u => u.GoogleSubject).IsUnique();
         });
 
         model.Entity<Room>(e =>
