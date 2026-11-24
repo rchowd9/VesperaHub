@@ -1467,10 +1467,24 @@ function el(tag, props = {}, ...children) {
 }
 
 function setAvatar(node, name) {
+  const username = name || "?";
+  node.dataset.username = username;
+  node.replaceChildren();
+  const avatarUrl = state.avatarUrls.get(lc(username));
+  if (avatarUrl) {
+    const image = el("img", { src: avatarUrl, alt: "", loading: "lazy" });
+    image.addEventListener("error", () => {
+      state.avatarUrls.set(lc(username), null);
+      setAvatar(node, username);
+    }, { once: true });
+    node.append(image);
+    return;
+  }
+
   let hash = 0;
-  for (const ch of lc(name)) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  for (const ch of lc(username)) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
   node.style.background = `hsl(${hash % 360} 55% 45%)`;
-  node.textContent = (name || "?").charAt(0).toUpperCase();
+  node.textContent = username.charAt(0).toUpperCase();
 }
 
 function setStatus(text, kind) {
@@ -1520,12 +1534,55 @@ function formatSize(bytes) {
 /* ============================================================
    Boot
    ============================================================ */
-if (typeof signalR === "undefined") {
+async function boot() {
+  if (typeof signalR === "undefined") {
   const error = $("auth-error");
   error.textContent = "Couldn't load the SignalR library. Check your internet connection and reload.";
   error.hidden = false;
-} else if (loadSession()) {
-  startChat();
-} else {
-  $("auth-username").focus();
+    return;
+  }
+
+  const hash = new URLSearchParams(window.location.hash.slice(1));
+  const googleCode = hash.get("google-auth");
+  const googleError = hash.get("google-error");
+  if (googleCode || googleError) history.replaceState(null, "", window.location.pathname + window.location.search);
+
+  if (googleError) {
+    const error = $("auth-error");
+    error.textContent = googleError === "unverified-email"
+      ? "Google sign-in requires a verified Google email address."
+      : googleError === "email-in-use"
+        ? "That Google email is already linked to another account."
+        : "Google sign-in couldn't be completed. Try again.";
+    error.hidden = false;
+  }
+
+  if (googleCode) {
+    try {
+      const data = await api("/api/auth/google/exchange", {
+        method: "POST",
+        json: { code: googleCode },
+      });
+      saveSession(data);
+      await startChat();
+      return;
+    } catch (err) {
+      $("auth-error").textContent = err.message;
+      $("auth-error").hidden = false;
+    }
+  }
+
+  try {
+    const options = await api("/api/auth/options");
+    $("google-btn").hidden = !options.googleEnabled;
+    $("google-divider").hidden = !options.googleEnabled;
+  } catch (err) {
+    $("auth-error").textContent = `Couldn't load sign-in options: ${err.message}`;
+    $("auth-error").hidden = false;
+  }
+
+  if (loadSession()) await startChat();
+  else $("auth-username").focus();
 }
+
+boot();

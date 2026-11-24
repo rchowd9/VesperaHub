@@ -23,6 +23,11 @@ A real-time chat app built with ASP.NET Core, SignalR and .NET 10. It has a brow
 - **Desktop notifications** and a sound for DMs and mentions (turn on with the 🔕 button).
 - **Light and dark themes** (◐ button). Works on phones too.
 
+**Accounts and profiles**
+- **Email verification:** new password accounts must verify their email before signing in. Verification links expire after 24 hours; existing accounts are preserved during the schema upgrade.
+- **Google sign-in:** sign in or create an account with a verified Google email.
+- **Profile pictures:** upload a PNG, JPEG, GIF, or WebP picture; Google profile photos are used until you upload one.
+
 **Under the hood**
 - **Accounts:** passwords are hashed with PBKDF2-SHA256 (210,000 iterations, random salt). JWT authentication covers the API and the hub.
 - **Encryption at rest:** message content is stored with AES-256-GCM.
@@ -83,7 +88,23 @@ Start the server:
 dotnet run --project VesperaHub.Server
 ```
 
-Then open **https://localhost:5001** in your browser, choose a username and password, and click **Create account**. To chat with yourself, open a second browser window (or a private window) and register a second user.
+Then open **https://localhost:5001** in your browser, choose a username, enter an email and password, and click **Create account**. Verify the email before signing in. To chat with yourself, open a second browser window (or a private window) and register a second user.
+
+### Email verification and Google sign-in setup
+
+Set these environment variables (or equivalent user-secrets) on the server. Keep SMTP and Google credentials out of source control:
+
+| Variable | Purpose |
+|---|---|
+| `Email__SmtpHost` | SMTP server hostname |
+| `Email__SmtpPort` | SMTP TLS port (commonly `587`) |
+| `Email__Username` / `Email__Password` | SMTP credentials; use an app password where the provider requires one |
+| `Email__FromAddress` | Verified sender address |
+| `Email__FromName` | Optional sender display name |
+| `Email__PublicUrl` | Public app origin used for verification links (for example `https://chat.example.com`) |
+| `Authentication__Google__ClientId` / `Authentication__Google__ClientSecret` | OAuth credentials from Google Cloud |
+
+Add the Google OAuth callback URL `https://<your-host>/signin-google` to the authorized redirect URIs in Google Cloud. The Google sign-in button stays hidden until both Google credentials are configured. Email verification requires a working SMTP host and sender address; registration is disabled with an explicit configuration error otherwise.
 
 The console client works against the same server:
 
@@ -112,8 +133,13 @@ Replies, reactions, edits and uploads are only available in the web app.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `POST` | `/api/auth/register` | none | Create an account. Body: `{ "username", "password" }`. Returns `{ token, username, expiresAt }`. |
-| `POST` | `/api/auth/login` | none | Log in. Same body and response as register. |
+| `POST` | `/api/auth/register` | none | Create an account. Body: `{ "username", "password", "email" }`. Sends a verification link; no session is issued until verified. |
+| `POST` | `/api/auth/login` | none | Log in with `{ "username", "password" }`. Returns `{ "token", "username", "expiresAt" }` for verified accounts. |
+| `GET` | `/api/auth/verify?token=...` | none | Confirm an email verification link. |
+| `POST` | `/api/auth/resend-verification` | none | Request another verification link. Body: `{ "email" }`. |
+| `GET` | `/api/auth/google` | none | Start Google sign-in (when configured). |
+| `GET` | `/api/profile` | JWT | Get the signed-in user's profile. |
+| `POST` | `/api/profile/avatar` | JWT | Set an uploaded image as the profile picture. |
 | `GET` | `/api/rooms` | JWT | List rooms with online counts. |
 | `POST` | `/api/rooms` | JWT | Create a room. Body: `{ "name", "description" }`. |
 | `POST` | `/api/uploads` | JWT | Upload a file (multipart field `file`, max 10 MB). Returns an attachment to send with a message. |
