@@ -355,6 +355,8 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .avatar { overflow: hidden; }
 .avatar img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
 .me .icon-btn { flex: none; padding: 7px; }
+.profile-picture-btn { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.profile-picture-btn[aria-disabled="true"] { opacity: .55; cursor: progress; pointer-events: none; }
 
 @media (max-width: 700px) {
   .me .icon-btn { padding: 6px; }

@@ -1155,7 +1155,6 @@ $("new-room-form").addEventListener("submit", async (e) => {
   }
 });
 
-$("profile-picture-btn").addEventListener("click", () => $("profile-picture-input").click());
 $("profile-picture-input").addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   e.target.value = "";
@@ -1165,8 +1164,9 @@ $("profile-picture-input").addEventListener("change", async (e) => {
     return appendNotice("Choose a PNG, JPEG, GIF, or WebP image.", true);
 
   const button = $("profile-picture-btn");
-  button.disabled = true;
+  button.setAttribute("aria-disabled", "true");
   button.title = "Uploading profile picture…";
+  button.textContent = "…";
   try {
     const form = new FormData();
     form.append("file", file, file.name || "profile-picture");
@@ -1178,11 +1178,22 @@ $("profile-picture-input").addEventListener("change", async (e) => {
     state.profile = profile;
     updateAvatar(profile.username, profile.avatarUrl);
     button.title = "Profile picture updated";
+    button.textContent = "✓";
+    setTimeout(() => {
+      button.textContent = "📷";
+      button.title = "Change profile picture";
+    }, 1800);
   } catch (err) {
-    button.title = "Change profile picture";
+    button.title = "Profile picture upload failed";
+    button.textContent = "!";
     appendNotice(`Couldn't update profile picture: ${err.message}`, true);
+    setTimeout(() => {
+      button.textContent = "📷";
+      button.title = "Change profile picture";
+    }, 1800);
   } finally {
-    button.disabled = false;
+    button.removeAttribute("aria-disabled");
+    if (button.textContent === "…") button.textContent = "📷";
   }
 });
 
