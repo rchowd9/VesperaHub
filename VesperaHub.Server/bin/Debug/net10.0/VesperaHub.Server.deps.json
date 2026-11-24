@@ -8,11 +8,20 @@
     ".NETCoreApp,Version=v10.0": {
       "VesperaHub.Server/1.0.0": {
         "dependencies": {
+          "Microsoft.AspNetCore.Authentication.Google": "10.0.15",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.15",
           "Microsoft.EntityFrameworkCore.Sqlite": "10.0.15"
         },
         "runtime": {
           "VesperaHub.Server.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Google/10.0.15": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "assemblyVersion": "10.0.15.0",
+            "fileVersion": "10.0.1526.53008"
+          }
         }
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.15": {
@@ -334,6 +343,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Microsoft.AspNetCore.Authentication.Google/10.0.15": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MzNCejdzgicRQOpGNv38p5QjrzUlK9aLaLOfC2J919RvLeswY4yoTZtOEfZnwuWKrJPOlyn8cXbSnUgBYPDPoQ==",
+      "path": "microsoft.aspnetcore.authentication.google/10.0.15",
+      "hashPath": "microsoft.aspnetcore.authentication.google.10.0.15.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.15": {
       "type": "package",

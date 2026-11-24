@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VesperaHub.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c60def2ac1de268140b5d6852ae558b2b30b4b9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7c1c062dcec2e40fecf78c4667ee53e1afeafdf")]
 [assembly: System.Reflection.AssemblyProductAttribute("VesperaHub.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VesperaHub.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

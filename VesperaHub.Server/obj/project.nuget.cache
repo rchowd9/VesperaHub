@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "g/DAo5v6+ig=",
+  "dgSpecHash": "LD3kil8oQ2Q=",
   "success": true,
   "projectFilePath": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\10.0.15\\microsoft.aspnetcore.authentication.google.10.0.15.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\10.0.15\\microsoft.aspnetcore.authentication.jwtbearer.10.0.15.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.bcl.cryptography\\10.0.2\\microsoft.bcl.cryptography.10.0.2.nupkg.sha512",
     "C:\\Users\\Home\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.15\\microsoft.data.sqlite.core.10.0.15.nupkg.sha512",

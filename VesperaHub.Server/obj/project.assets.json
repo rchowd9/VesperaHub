@@ -2,6 +2,22 @@
   "version": 3,
   "targets": {
     "net10.0": {
+      "Microsoft.AspNetCore.Authentication.Google/10.0.15": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "related": ".xml"
+          }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.15": {
         "type": "package",
         "dependencies": {
@@ -406,6 +422,22 @@
     }
   },
   "libraries": {
+    "Microsoft.AspNetCore.Authentication.Google/10.0.15": {
+      "sha512": "MzNCejdzgicRQOpGNv38p5QjrzUlK9aLaLOfC2J919RvLeswY4yoTZtOEfZnwuWKrJPOlyn8cXbSnUgBYPDPoQ==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.authentication.google/10.0.15",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "PACKAGE.md",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.dll",
+        "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.xml",
+        "microsoft.aspnetcore.authentication.google.10.0.15.nupkg.sha512",
+        "microsoft.aspnetcore.authentication.google.nuspec"
+      ]
+    },
     "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.15": {
       "sha512": "Y8VbPrQuABpTkMrqO/K2URdfqBBheri/YDcB+sO530arpqsy7vsd/go/YfEP8XaRkACWPQV2gPxedl7dnxp0zg==",
       "type": "package",
@@ -860,6 +892,7 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "Microsoft.AspNetCore.Authentication.Google >= 10.0.15",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 10.0.15",
       "Microsoft.EntityFrameworkCore.Sqlite >= 10.0.15"
     ]
@@ -871,11 +904,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
+      "projectUniqueName": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
       "projectName": "VesperaHub.Server",
-      "projectPath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
+      "projectPath": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\VesperaHub.Server.csproj",
       "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\obj\\",
+      "outputPath": "C:\\Users\\Home\\Downloads\\VesperaHub\\VesperaHub.Server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -912,6 +945,10 @@
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
+          "Microsoft.AspNetCore.Authentication.Google": {
+            "target": "Package",
+            "version": "[10.0.15, )"
+          },
           "Microsoft.AspNetCore.Authentication.JwtBearer": {
             "target": "Package",
             "version": "[10.0.15, )"
