@@ -77,6 +77,14 @@ public static class SchemaUpgrader
             );
             """);
         db.Database.ExecuteSqlRaw("""CREATE UNIQUE INDEX IF NOT EXISTS "IX_VoiceChannels_RoomId_Name" ON "VoiceChannels" ("RoomId", "Name")""");
+        db.Database.ExecuteSqlRaw("""
+            INSERT OR IGNORE INTO "VoiceChannels" ("Id", "RoomId", "Name", "CreatedAt")
+            SELECT 1, "Id", 'lobby', '2026-01-01 00:00:00' FROM "Rooms" WHERE "Name" = 'general';
+            """);
+        db.Database.ExecuteSqlRaw("""
+            INSERT OR IGNORE INTO "VoiceChannels" ("Id", "RoomId", "Name", "CreatedAt")
+            SELECT 2, "Id", 'chill', '2026-01-01 00:00:00' FROM "Rooms" WHERE "Name" = 'general';
+            """);
 
         var columns = db.Database
             .SqlQueryRaw<string>("""SELECT "name" AS "Value" FROM pragma_table_info('Messages')""")
