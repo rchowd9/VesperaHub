@@ -57,8 +57,58 @@ public class ChatHub(
         string? room = presence.Disconnect(Context.ConnectionId);
         if (room is not null)
             await BroadcastPresence(room);
+        string? voiceChannel = voicePresence.Leave(Context.ConnectionId);
+        if (voiceChannel is not null)
+            await BroadcastVoicePresence(voiceChannel);
         await Clients.All.SendAsync("OnlineUsersChanged", presence.OnlineUsers());
         await base.OnDisconnectedAsync(exception);
+    }
+
+    public async Task<IReadOnlyList<VoicePeerDto>> JoinVoice(string roomName, string channelName)
+    {
+        var channel = await db.VoiceChannels.AsNoTracking()
+            .Include(v => v.Room)
+            .FirstOrDefaultAsync(v => v.Room.Name == roomName && v.Name == channelName)
+            ?? throw new HubException("Voice channel does not exist.");
+
+        string key = $"{roomName}:{channelName}";
+        voicePresence.Join(Context.ConnectionId, key, Username);
+        await Groups.AddToGroupAsync(Context.ConnectionId, VoiceGroup(roomName, channelName));
+        await BroadcastVoicePresence(key);
+        return voicePresence.PeersWithDetails(key)
+            .Select(p => new VoicePeerDto(p.ConnectionId, p.User, p.Muted)).ToList();
+    }
+
+    public async Task LeaveVoice(string roomName, string channelName)
+    {
+        string? previous = voicePresence.Leave(Context.ConnectionId);
+        if (previous is null) return;
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, VoiceGroup(roomName, channelName));
+        await BroadcastVoicePresence(previous);
+    }
+
+    public async Task SetVoiceMuted(string roomName, string channelName, bool muted)
+    {
+        voicePresence.SetMuted(Context.ConnectionId, muted);
+        await BroadcastVoicePresence($"{roomName}:{channelName}");
+    }
+
+    public async Task SendVoiceSignal(string roomName, string channelName, string targetConnectionId, string type, string payload)
+    {
+        if (!voicePresence.PeersInChannel(Context.ConnectionId, $"{roomName}:{channelName}")
+            .Contains(targetConnectionId))
+            throw new HubException("That user is not in this voice channel.");
+        await Clients.Client(targetConnectionId).SendAsync("VoiceSignal", roomName, channelName, Context.ConnectionId, Username, type, payload);
+    }
+
+    private Task BroadcastVoicePresence(string key)
+    {
+        int colon = key.IndexOf(':');
+        if (colon <= 0) return Task.CompletedTask;
+        string room = key[..colon];
+        string channel = key[(colon + 1)..];
+        return Clients.Group(VoiceGroup(room, channel)).SendAsync(
+            "VoicePresenceChanged", room, channel, voicePresence.UsersInChannel(key));
     }
 
     // ---------- Reading ----------

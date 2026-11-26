@@ -43,6 +43,10 @@ public class VesperaDbContext(DbContextOptions<VesperaDbContext> options) : DbCo
             e.Property(v => v.Name).HasMaxLength(32);
             e.HasOne(v => v.Room).WithMany().HasForeignKey(v => v.RoomId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(v => new { v.RoomId, v.Name }).IsUnique();
+            var seeded = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            e.HasData(
+                new VoiceChannel { Id = 1, RoomId = 1, Name = "lobby", CreatedAt = seeded },
+                new VoiceChannel { Id = 2, RoomId = 1, Name = "chill", CreatedAt = seeded });
         });
 
         model.Entity<Message>(e =>
