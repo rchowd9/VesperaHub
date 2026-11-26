@@ -1049,6 +1049,136 @@ function renderTyping() {
 /* ============================================================
    Sidebar & members
    ============================================================ */
+async function loadVoiceChannels(room) {
+  state.voiceRoom = room;
+  try {
+    state.voiceChannels = await api(`/api/rooms/${encodeURIComponent(room)}/voice`);
+  } catch (err) {
+    state.voiceChannels = [];
+  }
+  renderVoiceChannels();
+}
+
+function renderVoiceChannels() {
+  $("voice-count").textContent = state.voiceChannels.length ? String(state.voiceChannels.length) : "";
+  $("voice-list").replaceChildren(...state.voiceChannels.map((channel) => {
+    const joined = state.voiceRoom === keyName(state.current) &&
+      state.voiceChannel === channel.name;
+    const btn = el("button", { type: "button", title: `Join ${channel.name}` });
+    if (joined) btn.classList.add("active");
+    btn.append(el("span", { className: "label" }, `🔊 ${channel.name}`));
+    btn.addEventListener("click", () => joinVoiceChannel(channel.name));
+    return el("li", { className: "voice-channel" }, btn);
+  }));
+}
+
+async function joinVoiceChannel(channel) {
+  const room = keyType(state.current) === "room" ? keyName(state.current) : state.voiceRoom;
+  if (!room) return;
+  if (state.voiceChannel) await leaveVoiceChannel();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.voiceStream = stream;
+    state.voiceRoom = room;
+    state.voiceChannel = channel;
+    state.voiceMuted = false;
+    stream.getAudioTracks().forEach((track) => { track.enabled = true; });
+    const peers = await state.connection.invoke("JoinVoice", room, channel);
+    $("voice-controls").hidden = false;
+    $("voice-mute-btn").classList.remove("muted");
+    $("voice-mute-btn").textContent = "🎤";
+    await connectVoicePeers(peers);
+    renderVoiceChannels();
+  } catch (err) {
+    state.voiceRoom = room;
+    state.voiceChannel = null;
+    $("voice-error").textContent = err.name === "NotAllowedError"
+      ? "Microphone permission was denied."
+      : (err.message || "Couldn't join voice channel.");
+    $("voice-error").hidden = false;
+  }
+}
+
+async function leaveVoiceChannel() {
+  if (!state.voiceChannel) return;
+  const room = state.voiceRoom;
+  const channel = state.voiceChannel;
+  await state.connection.invoke("LeaveVoice", room, channel).catch(() => {});
+  state.voiceStream?.getTracks().forEach((track) => track.stop());
+  state.voiceStream = null;
+  state.voiceConnections.forEach((pc) => pc.close());
+  state.voiceConnections.clear();
+  state.voicePeers.clear();
+  state.voiceChannel = null;
+  $("voice-controls").hidden = true;
+  renderVoiceChannels();
+}
+
+async function connectVoicePeers(peers) {
+  for (const peer of peers) {
+    if (peer.connectionId === await getSignalRConnectionId()) continue;
+    await createVoicePeer(peer.connectionId, peer.user, true);
+  }
+}
+
+async function getSignalRConnectionId() {
+  return state.connection.connectionId;
+}
+
+async function createVoicePeer(connectionId, username, makeOffer) {
+  if (state.voiceConnections.has(connectionId)) return;
+  const pc = new RTCPeerConnection({
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  });
+  state.voiceConnections.set(connectionId, pc);
+  state.voiceStream?.getTracks().forEach((track) => pc.addTrack(track, state.voiceStream));
+  pc.onicecandidate = ({ candidate }) => {
+    if (candidate) state.connection.invoke("SendVoiceSignal",
+      state.voiceRoom, state.voiceChannel, connectionId, "ice", JSON.stringify(candidate)).catch(() => {});
+  };
+  pc.ontrack = (event) => {
+    let audio = document.querySelector(`audio[data-voice-peer="${connectionId}"]`);
+    if (!audio) {
+      audio = document.createElement("audio");
+      audio.dataset.voicePeer = connectionId;
+      audio.autoplay = true;
+      document.body.appendChild(audio);
+    }
+    audio.srcObject = event.streams[0];
+  };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === "failed" || pc.connectionState === "closed") {
+      state.voiceConnections.delete(connectionId);
+      document.querySelector(`audio[data-voice-peer="${connectionId}"]`)?.remove();
+    }
+  };
+  if (makeOffer) {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await state.connection.invoke("SendVoiceSignal",
+      state.voiceRoom, state.voiceChannel, connectionId, "offer", JSON.stringify(offer));
+  }
+}
+
+async function onVoiceSignal(room, channel, senderConnectionId, senderName, type, payload) {
+  if (room !== state.voiceRoom || channel !== state.voiceChannel) return;
+  await createVoicePeer(senderConnectionId, senderName, false);
+  const pc = state.voiceConnections.get(senderConnectionId);
+  if (!pc) return;
+  const data = JSON.parse(payload);
+  if (type === "offer") {
+    await pc.setRemoteDescription(new RTCSessionDescription(data));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    await state.connection.invoke("SendVoiceSignal",
+      room, channel, senderConnectionId, "answer", JSON.stringify(answer));
+  } else if (type === "answer") {
+    await pc.setRemoteDescription(new RTCSessionDescription(data));
+  } else if (type === "ice") {
+    await pc.addIceCandidate(new RTCIceCandidate(data)).catch(() => {});
+  }
+}
+
 function renderRooms() {
   $("room-count").textContent = String(state.rooms.length);
   $("room-list").replaceChildren(...state.rooms.map((room) => {
