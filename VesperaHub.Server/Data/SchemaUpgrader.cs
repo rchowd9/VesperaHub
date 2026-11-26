@@ -67,6 +67,17 @@ public static class SchemaUpgrader
             );
             """);
 
+        db.Database.ExecuteSqlRaw("""
+            CREATE TABLE IF NOT EXISTS "VoiceChannels" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_VoiceChannels" PRIMARY KEY AUTOINCREMENT,
+                "RoomId" INTEGER NOT NULL,
+                "Name" TEXT NOT NULL,
+                "CreatedAt" TEXT NOT NULL,
+                CONSTRAINT "FK_VoiceChannels_Rooms_RoomId" FOREIGN KEY ("RoomId") REFERENCES "Rooms" ("Id") ON DELETE CASCADE
+            );
+            """);
+        db.Database.ExecuteSqlRaw("""CREATE UNIQUE INDEX IF NOT EXISTS "IX_VoiceChannels_RoomId_Name" ON "VoiceChannels" ("RoomId", "Name")""");
+
         var columns = db.Database
             .SqlQueryRaw<string>("""SELECT "name" AS "Value" FROM pragma_table_info('Messages')""")
             .ToHashSet(StringComparer.OrdinalIgnoreCase);

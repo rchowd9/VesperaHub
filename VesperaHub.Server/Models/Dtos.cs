@@ -11,6 +11,8 @@ public record PublicProfileDto(string Username, string? AvatarUrl);
 
 public record RoomDto(string Name, string Description, int Online);
 public record CreateRoomRequest(string Name, string? Description);
+public record VoiceChannelDto(int Id, int RoomId, string Name);
+public record CreateVoiceChannelRequest(string RoomName, string Name);
 
 public record AttachmentDto(Guid Id, string Url, string FileName, string ContentType, long Size, bool IsImage);
 public record ReplyPreviewDto(long Id, string Sender, string Snippet);

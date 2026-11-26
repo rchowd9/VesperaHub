@@ -25,6 +25,15 @@ public class Room
     public DateTime CreatedAt { get; set; }
 }
 
+public class VoiceChannel
+{
+    public int Id { get; set; }
+    public int RoomId { get; set; }
+    public Room Room { get; set; } = null!;
+    public string Name { get; set; } = "";
+    public DateTime CreatedAt { get; set; }
+}
+
 /// <summary>
 /// A chat message. Room messages have <see cref="RoomId"/> set; direct messages have
 /// <see cref="RecipientId"/> set instead. Content is always stored encrypted.

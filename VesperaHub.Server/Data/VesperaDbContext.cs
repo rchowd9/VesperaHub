@@ -7,6 +7,7 @@ public class VesperaDbContext(DbContextOptions<VesperaDbContext> options) : DbCo
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Room> Rooms => Set<Room>();
+    public DbSet<VoiceChannel> VoiceChannels => Set<VoiceChannel>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<Reaction> Reactions => Set<Reaction>();
@@ -35,6 +36,13 @@ public class VesperaDbContext(DbContextOptions<VesperaDbContext> options) : DbCo
                 new Room { Id = 1, Name = "general", Description = "Talk about anything", CreatedAt = seeded },
                 new Room { Id = 2, Name = "dev", Description = "Code, builds and bugs", CreatedAt = seeded },
                 new Room { Id = 3, Name = "random", Description = "Off-topic and fun", CreatedAt = seeded });
+        });
+
+        model.Entity<VoiceChannel>(e =>
+        {
+            e.Property(v => v.Name).HasMaxLength(32);
+            e.HasOne(v => v.Room).WithMany().HasForeignKey(v => v.RoomId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(v => new { v.RoomId, v.Name }).IsUnique();
         });
 
         model.Entity<Message>(e =>

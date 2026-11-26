@@ -36,6 +36,7 @@ builder.Services.AddSingleton<EncryptionService>();
 builder.Services.AddSingleton<MessageMapper>();
 builder.Services.AddSingleton<ChatRateLimiter>();
 builder.Services.AddSingleton<PresenceTracker>();
+builder.Services.AddSingleton<VoicePresenceTracker>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<GoogleLoginHandoff>();
 builder.Services.AddScoped<EmailVerificationService>();
