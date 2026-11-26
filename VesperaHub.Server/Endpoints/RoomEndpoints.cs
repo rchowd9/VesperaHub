@@ -46,5 +46,32 @@ public static partial class RoomEndpoints
             await hub.Clients.All.SendAsync("RoomCreated", dto);
             return Results.Created($"/api/rooms/{room.Name}", dto);
         });
+
+        group.MapGet("/{roomName}/voice", async (string roomName, VesperaDbContext db, VoicePresenceTracker voice) =>
+        {
+            var room = await db.Rooms.AsNoTracking().FirstOrDefaultAsync(r => r.Name == roomName);
+            if (room is null) return Results.NotFound();
+            var channels = await db.VoiceChannels.AsNoTracking()
+                .Where(v => v.RoomId == room.Id).OrderBy(v => v.Id)
+                .Select(v => new VoiceChannelDto(v.Id, v.RoomId, v.Name)).ToListAsync();
+            return Results.Ok(channels);
+        });
+
+        group.MapPost("/{roomName}/voice", async (string roomName, CreateVoiceChannelRequest req, VesperaDbContext db, IHubContext<ChatHub> hub) =>
+        {
+            var room = await db.Rooms.FirstOrDefaultAsync(r => r.Name == roomName);
+            if (room is null) return Results.NotFound();
+            string name = (req.Name ?? "").Trim().ToLowerInvariant();
+            if (!RoomNamePattern().IsMatch(name))
+                return Results.BadRequest(new { error = "Voice channel names must be 2-32 lowercase letters, numbers or dashes." });
+            if (await db.VoiceChannels.AnyAsync(v => v.RoomId == room.Id && v.Name == name))
+                return Results.Conflict(new { error = $"Voice channel '{name}' already exists." });
+            var channel = new VoiceChannel { RoomId = room.Id, Name = name, CreatedAt = DateTime.UtcNow };
+            db.VoiceChannels.Add(channel);
+            await db.SaveChangesAsync();
+            var dto = new VoiceChannelDto(channel.Id, room.Id, channel.Name);
+            await hub.Clients.All.SendAsync("VoiceChannelCreated", dto);
+            return Results.Created($"/api/rooms/{roomName}/voice/{channel.Name}", dto);
+        });
     }
 }

@@ -26,6 +26,7 @@ public class ChatHub(
     EncryptionService crypto,
     MessageMapper mapper,
     PresenceTracker presence,
+    VoicePresenceTracker voicePresence,
     ChatRateLimiter rateLimiter) : Hub
 {
     public const int MaxMessageLength = 4000;
@@ -34,6 +35,7 @@ public class ChatHub(
     private const int SearchResultLimit = 30;
 
     public static string RoomGroup(string room) => $"room:{room}";
+    public static string VoiceGroup(string room, string channel) => $"voice:{room}:{channel}";
 
     private string Username => Context.User!.Identity!.Name!;
     private int UserId => int.Parse(Context.User!.FindFirst(TokenService.UserIdClaim)!.Value);
