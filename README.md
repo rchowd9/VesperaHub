@@ -21,6 +21,7 @@ A real-time chat app built with ASP.NET Core, SignalR and .NET 10. It has a brow
 - **Typing indicators** in rooms and DMs.
 - **Unread badges** for every room and DM, a red **@** badge when you were mentioned, and the unread count in the tab title.
 - **Desktop notifications** and a sound for DMs and mentions (turn on with the 🔕 button).
+- **Voice channels:** join a room's voice lobby or create new voice channels, with browser microphone audio and mute controls.
 - **Light and dark themes** (◐ button). Works on phones too.
 
 **Accounts and profiles**

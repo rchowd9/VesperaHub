@@ -1304,6 +1304,37 @@ $("new-room-form").addEventListener("submit", async (e) => {
   }
 });
 
+$("new-voice-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const room = keyType(state.current) === "room" ? keyName(state.current) : null;
+  const field = $("new-voice-name");
+  const error = $("voice-error");
+  error.hidden = true;
+  if (!room || !field.value.trim()) return;
+  try {
+    await api(`/api/rooms/${encodeURIComponent(room)}/voice`, {
+      method: "POST",
+      json: { roomName: room, name: field.value.trim() },
+    });
+    field.value = "";
+    await loadVoiceChannels(room);
+  } catch (err) {
+    error.textContent = err.message;
+    error.hidden = false;
+  }
+});
+
+$("voice-mute-btn").addEventListener("click", async () => {
+  if (!state.voiceChannel) return;
+  state.voiceMuted = !state.voiceMuted;
+  state.voiceStream?.getAudioTracks().forEach((track) => { track.enabled = !state.voiceMuted; });
+  $("voice-mute-btn").classList.toggle("muted", state.voiceMuted);
+  $("voice-mute-btn").textContent = state.voiceMuted ? "🔇" : "🎤";
+  await state.connection.invoke("SetVoiceMuted", state.voiceRoom, state.voiceChannel, state.voiceMuted).catch(() => {});
+});
+
+$("voice-leave-btn").addEventListener("click", leaveVoiceChannel);
+
 $("profile-picture-input").addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   e.target.value = "";
