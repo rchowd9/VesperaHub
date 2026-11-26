@@ -354,6 +354,7 @@ async function openConversation(key, { keepScroll = false, highlightId = null } 
       if (seq !== state.openSeq) return;
       page = result.history;
       setMembers(result.members);
+      await loadVoiceChannels(name);
     } else {
       state.dms.add(name);
       renderDms();
