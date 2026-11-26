@@ -37,17 +37,17 @@ public sealed class VoicePresenceTracker
                 .OrderBy(v => v.Key, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
+    }
 
-        public IReadOnlyList<(string ConnectionId, string User, bool Muted)> PeersWithDetails(string channel)
+    public IReadOnlyList<(string ConnectionId, string User, bool Muted)> PeersWithDetails(string channel)
+    {
+        lock (_lock)
         {
-            lock (_lock)
-            {
-                return _connections
-                    .Where(v => v.Value.Channel == channel)
-                    .Select(v => (v.Key, v.Value.User, v.Value.Muted))
-                    .OrderBy(v => v.User, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
+            return _connections
+                .Where(v => v.Value.Channel == channel)
+                .Select(v => (v.Key, v.Value.User, v.Value.Muted))
+                .OrderBy(v => v.User, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
     }
 
