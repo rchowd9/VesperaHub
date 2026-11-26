@@ -39,6 +39,13 @@ const state = {
   mention: { open: false, items: [], index: 0, start: 0 },
   pickerFor: null,          // message id the reaction picker is open for
   drafts: new Map(),        // conversation key -> unsent text
+  voiceChannels: [],
+  voiceRoom: null,
+  voiceChannel: null,
+  voiceMuted: false,
+  voiceStream: null,
+  voicePeers: new Map(),
+  voiceConnections: new Map(),
 };
 
 const $ = (id) => document.getElementById(id);
