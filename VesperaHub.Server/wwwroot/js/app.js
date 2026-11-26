@@ -275,6 +275,17 @@ async function startChat() {
       renderRooms();
     }
   });
+  conn.on("VoiceChannelCreated", () => {
+    if (state.current && keyType(state.current) === "room")
+      loadVoiceChannels(keyName(state.current));
+  });
+  conn.on("VoicePresenceChanged", (room, channel, users) => {
+    if (room === state.voiceRoom && channel === state.voiceChannel) {
+      state.voicePeers = new Map(users.map((u) => [lc(u.user), u]));
+      renderVoiceChannels();
+    }
+  });
+  conn.on("VoiceSignal", onVoiceSignal);
 
   conn.onreconnecting(() => setStatus("Reconnecting…", "warn"));
   conn.onreconnected(async () => {

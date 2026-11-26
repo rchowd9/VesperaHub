@@ -149,6 +149,11 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .conv-header p { margin: 2px 0 0; }
 .search { width: 220px; }
 .search input { padding: 6px 10px; font-size: 13.5px; }
+ .voice-controls { display: flex; gap: 4px; }
+ .voice-controls button { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 9px; }
+ .voice-controls button.muted { color: var(--err); }
+ .voice-channel button { color: var(--muted); }
+ .voice-channel button.active { color: var(--text); }
 
 .status { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--panel-2); white-space: nowrap; }
 .status.ok { color: var(--ok); }
